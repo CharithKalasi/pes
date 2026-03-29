@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { Exam } from "../../models/Exam.ts";
 
 export const getAnswerKeyPdf = async (

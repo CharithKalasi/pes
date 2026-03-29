@@ -1,11 +1,11 @@
-import { Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import { Evaluation } from "../../models/Evaluation.ts";
 import { Exam } from "../../models/Exam.ts";
 import { Statistics } from "../../models/Statistics.ts";
 import { Ticket } from "../../models/Ticket.ts";
 import { User } from "../../models/User.ts";
 import { Batch } from "../../models/Batch.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 import { Types } from "mongoose";
 
 export const generateEvaluationStatistics = async (

@@ -1,6 +1,6 @@
 
 import express from "express";
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import connectDB from "./config/db.ts";
 import studentRoutes from "./routes/student/student.routes.ts";
 import taRoutes from "./routes/ta/ta.routes.ts"; 

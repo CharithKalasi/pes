@@ -13,7 +13,6 @@ import ViewMarks from "../components/student/ViewMarks";
 import DashboardOverview from "../components/student/DashboardOverview";
 import PeerEvaluationsPending from "../components/student/PeerEvaluationsPending";
 import EnrollmentSection from "../components/student/EnrollmentSection";
-
 const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const lightPalette = {
@@ -36,7 +35,7 @@ const darkPalette = {
     'white': '#FFFFFF'
 };
 
-const getColors = (isDarkMode: Boolean) => isDarkMode ? darkPalette : lightPalette;
+const getColors = (isDarkMode: boolean) => isDarkMode ? darkPalette : lightPalette;
 
 const StudentDashboard = () => {
     const [token] = useState(localStorage.getItem('token'));
@@ -47,7 +46,12 @@ const StudentDashboard = () => {
     const [showSidebar, setShowSidebar] = useState(true);
     const [logoutDialog, setLogoutDialog] = useState(false);
     const [showProfilePopup, setShowProfilePopup] = useState(false);
-    const [profileData, setProfileData] = useState({ name: "", email: "", role: "", isTA: false });
+    const [profileData, setProfileData] = useState({
+        name: localStorage.getItem('userName') || "",
+        email: localStorage.getItem('userEmail') || "",
+        role: localStorage.getItem('role') || "",
+        isTA: localStorage.getItem('isTA') === 'true',
+    });
 
     const navigate = useNavigate();
     const currentPalette = getColors(darkMode);
@@ -62,7 +66,13 @@ const StudentDashboard = () => {
         else {
             axios.get(`http://localhost:${PORT}/api/student/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
-            }).then(res => setProfileData(res.data)).catch(console.error);
+            }).then(res => {
+                setProfileData(res.data);
+                localStorage.setItem('userName', res.data.name || '');
+                localStorage.setItem('userEmail', res.data.email || '');
+                localStorage.setItem('role', res.data.role || '');
+                localStorage.setItem('isTA', res.data.isTA ? 'true' : 'false');
+            }).catch(console.error);
         }
     }, [token, navigate]);
 
@@ -94,7 +104,13 @@ const StudentDashboard = () => {
             case 'enrollment': return <EnrollmentSection darkMode={darkMode} />;
             case 'peerEvaluation': return <PeerEvaluationsPending darkMode={darkMode} />;
             case 'viewMarks': return <ViewMarks darkMode={darkMode} />;
-            case 'profile': return <ProfileSection darkMode={darkMode} />;
+            case 'profile':
+                return (
+                    <ProfileSection
+                        darkMode={darkMode}
+                        onNavigate={(menu) => { setActiveMenu(menu); setSelectedCourseId(null); }}
+                    />
+                );
             default: return <p className="text-center" style={{ color: currentPalette['text-muted'] }}>Select a menu</p>;
         }
     };

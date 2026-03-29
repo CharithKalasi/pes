@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { Course } from "../../models/Course.ts";
 import { Batch } from "../../models/Batch.ts";
 import { User } from "../../models/User.ts";

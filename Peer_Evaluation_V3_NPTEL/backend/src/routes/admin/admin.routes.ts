@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import { deleteCourseAndBatches } from "../../controllers/admin/course.controller.ts";
 import { createBatchWithNames } from "../../controllers/admin/course.controller.ts";
 import {
@@ -20,7 +21,7 @@ import { authMiddleware } from "../../middlewares/authMiddleware.ts";
 import { authorizeRoles } from "../../middlewares/authorizeRoles.ts";   
 import { User } from '../../models/User.ts'; 
 
-const router = Router();
+const router = express.Router();
 
 
 //kept few middleware in comments for testing purpose

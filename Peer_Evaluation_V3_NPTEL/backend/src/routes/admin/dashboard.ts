@@ -1,12 +1,13 @@
 // This file defines the Express route for the admin dashboard to fetch counts of teachers, courses, and students.
-import { Router, Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import { User } from '../../models/User.ts';
 import { Course } from '../../models/Course.ts';
 import { Batch } from '../../models/Batch.ts';
 import { Exam } from '../../models/Exam.ts';
 import { authMiddleware } from '../../middlewares/authMiddleware.ts'; 
 
-const router = Router();
+const router = express.Router();
 
 router.get('/counts', async (req: Request, res: Response) => {
   try {

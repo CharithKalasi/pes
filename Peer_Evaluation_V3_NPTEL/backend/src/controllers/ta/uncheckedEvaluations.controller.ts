@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { Evaluation } from '../../models/Evaluation.ts';
 import { Batch } from '../../models/Batch.ts';
 import { Exam } from '../../models/Exam.ts';

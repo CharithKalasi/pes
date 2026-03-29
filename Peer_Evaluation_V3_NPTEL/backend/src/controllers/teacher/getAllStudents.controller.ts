@@ -1,7 +1,7 @@
 // controllers/teacher/getAllStudents.controller.ts
-import { Response } from "express";
+import type { Response } from "express";
 import { User } from "../../models/User.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 export const getAllStudents = async (
   _req: AuthenticatedRequest,
