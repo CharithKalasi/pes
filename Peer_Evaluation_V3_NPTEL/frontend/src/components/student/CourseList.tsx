@@ -11,6 +11,7 @@ type Course = {
 
 type Props = {
   onSelectCourse: (courseId: string) => void;
+  onGoToEnrollment: () => void;
   darkMode: boolean;
 };
 
@@ -21,7 +22,7 @@ const fetchCourses = async (): Promise<Course[]> => {
   return data.courses;
 };
 
-const CourseList = ({ onSelectCourse, darkMode }: Props) => {
+const CourseList = ({ onSelectCourse, onGoToEnrollment, darkMode }: Props) => {
   const { data: courses, isLoading, error } = useQuery({
     queryKey: ['studentCourses'],
     queryFn: fetchCourses,
@@ -59,6 +60,30 @@ const CourseList = ({ onSelectCourse, darkMode }: Props) => {
 
   if (isLoading) return <div className={`text-center p-4 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>Loading courses...</div>;
   if (error) return <div className={`text-center p-4 ${darkMode ? "text-red-400" : "text-red-600"}`}>Error loading courses.</div>;
+  if (!courses || courses.length === 0) {
+    return (
+      <div
+        className={`
+          flex min-h-[260px] w-full items-center justify-center rounded-2xl border p-8 text-center
+          ${darkMode ? "bg-[#1A1A2E] text-gray-300 border-gray-700" : "bg-white text-gray-600 border-black/10"}
+        `}
+        style={{ boxShadow: cardShadow }}
+      >
+        <div>
+          <h3 className={`mb-2 text-xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>No Courses Found</h3>
+          <p className="mb-4">You are not enrolled in any courses yet.</p>
+          <button
+            className={commonButtonClasses}
+            onClick={onGoToEnrollment}
+            style={{ background: buttonBg }}
+          >
+            <span className={commonButtonBeforeClasses}></span>
+            Go to Enrollment
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-fill-minmax-300 gap-8 relative z-10 sm:grid-cols-1 sm:gap-5">
