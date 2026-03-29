@@ -8,6 +8,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'pes-secret';
 const OTP_STORE = new Map<string, string>();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const findUserByEmailInsensitive = async (email: string) => {
+  const normalizedEmail = email.trim();
+  return User.findOne({
+    email: { $regex: `^${escapeRegExp(normalizedEmail)}$`, $options: 'i' },
+  });
+};
+
 export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> => {
   const { email } = req.body;
   if (!email)
@@ -60,8 +69,9 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, role } = req.body;
+    const normalizedEmail = String(email || '').trim().toLowerCase();
 
-    const existing = await User.findOne({ email });
+    const existing = await findUserByEmailInsensitive(normalizedEmail);
     if (existing) {
       res.status(400).json({ error: 'User already exists' });
       return;
@@ -70,7 +80,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       role,
     });
@@ -89,7 +99,7 @@ import { Batch } from '../../models/Batch.ts'; // ✅ Add this import if not pre
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await findUserByEmailInsensitive(String(email || ''));
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       res.status(401).json({ error: 'Invalid email or password' });
@@ -122,9 +132,10 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
   const { email } = req.body;
+  const normalizedEmail = String(email || '').trim();
 
   try {
-    const user = await User.findOne({ email });
+    const user = await findUserByEmailInsensitive(normalizedEmail);
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
@@ -148,7 +159,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     await transporter.sendMail({
       from: `"Password Reset" <noreplypeerevaluationsystem@gmail.com>`,
-      to: email,
+      to: user.email,
       subject: 'Reset your password',
       html: `
         <h3>Hello, ${user.name || 'User'}</h3>

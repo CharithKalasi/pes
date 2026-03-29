@@ -24,7 +24,9 @@ import { changePassword } from "../../controllers/student/changePassword.control
 import { raiseTicket } from "../../controllers/student/raiseTIcket.controller.ts";
 import {
   createEnrollment,
+  cancelEnrollmentRequest,
   getStudentEnrollments,
+  updateEnrollmentRequest,
 } from "../../controllers/student/enrollment.controller.ts";
 import { getAnswerKeyPdf } from "../../controllers/student/answerKeyPdf.controller.ts";
 import { getQuestionPaperPdf } from "../../controllers/student/questionPaperPdf.controller.ts";
@@ -57,6 +59,8 @@ router.post("/change-password", authMiddleware, changePassword);
 router.post("/raise-ticket", authMiddleware, raiseTicket);
 router.post("/enrollment", authMiddleware, upload.none(), createEnrollment);
 router.get("/enrollment", authMiddleware, getStudentEnrollments);
+router.put("/enrollment/:enrollmentId", authMiddleware, updateEnrollmentRequest);
+router.delete("/enrollment/:enrollmentId", authMiddleware, cancelEnrollmentRequest);
 router.get("/all-courses", authMiddleware, getAllCourses);
 router.get("/batches-by-course", authMiddleware, getBatchesByCourse);
 router.get("/answer-key/:examId", authMiddleware, getAnswerKeyPdf);
