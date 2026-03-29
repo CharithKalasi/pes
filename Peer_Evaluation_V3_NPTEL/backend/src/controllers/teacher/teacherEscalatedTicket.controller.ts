@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { TeacherTicket } from '../../models/TeacherTicket.ts';
 import { Exam } from '../../models/Exam.ts';

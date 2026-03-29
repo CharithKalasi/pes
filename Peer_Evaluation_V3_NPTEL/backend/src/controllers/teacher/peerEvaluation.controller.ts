@@ -1,10 +1,10 @@
-import { Response } from "express";
+import type { Response } from "express";
 import { Exam } from "../../models/Exam.ts";
 import { Batch } from "../../models/Batch.ts";
 import { Submission } from "../../models/Submission.ts";
 import { Evaluation } from "../../models/Evaluation.ts";
 import { sendBatchReminderEmails } from "../../utils/sendEmailReminder.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 import { assignEvaluationsFlow } from "../../utils/assignEvaluationsFlow.ts";
 
 export const initiatePeerEvaluation = async (

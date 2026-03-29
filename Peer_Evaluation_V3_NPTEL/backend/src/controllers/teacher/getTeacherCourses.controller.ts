@@ -1,7 +1,8 @@
-import { Response, NextFunction } from "express";
-import { Batch, IBatch } from "../../models/Batch.ts";
-import { ICourse } from "../../models/Course.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { Response, NextFunction } from "express";
+import { Batch } from "../../models/Batch.ts";
+import type { IBatch } from "../../models/Batch.ts";
+import type { ICourse } from "../../models/Course.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 export const getTeacherCourses = async (
   req: AuthenticatedRequest,

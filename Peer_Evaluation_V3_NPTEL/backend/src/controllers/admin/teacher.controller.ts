@@ -143,3 +143,111 @@
 //     res.status(500).json({ error: 'Failed to unassign course from teacher', details: error.message });
 //   }
 // };
+import type { Request, Response } from "express";
+import mongoose from "mongoose";
+import { User } from "../../models/User.ts";
+import { Course } from "../../models/Course.ts";
+
+export const getAllTeachers = async (_req: Request, res: Response) => {
+  try {
+    const teachers = await User.find({ role: "teacher" }).populate(
+      "enrolledCourses",
+      "name code"
+    );
+    res.status(200).json(teachers);
+  } catch (error) {
+    console.error("Failed to fetch teachers:", error);
+    res.status(500).json({ error: "Failed to fetch teachers" });
+  }
+};
+
+export const deleteTeacher = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+    const deleted = await User.findOneAndDelete({ email, role: "teacher" });
+
+    if (!deleted) {
+      res.status(404).json({ error: "Teacher not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Teacher deleted successfully" });
+  } catch (error) {
+    console.error("Failed to delete teacher:", error);
+    res.status(500).json({ error: "Failed to delete teacher" });
+  }
+};
+
+export const assignTeacherToCourse = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, courseCode } = req.body;
+    const teacher = await User.findOne({ email, role: "teacher" });
+
+    if (!teacher) {
+      res.status(404).json({ message: "Teacher not found" });
+      return;
+    }
+
+    const course = await Course.findOne({ code: courseCode });
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    const courseId = new mongoose.Types.ObjectId(String(course._id));
+    const alreadyAssigned = teacher.enrolledCourses.some((id) =>
+      new mongoose.Types.ObjectId(String(id)).equals(courseId)
+    );
+
+    if (!alreadyAssigned) {
+      teacher.enrolledCourses.push(courseId);
+      await teacher.save();
+    }
+
+    res.status(200).json({ message: "Teacher assigned to course successfully" });
+  } catch (error: any) {
+    console.error("Failed to assign teacher to course:", error);
+    res.status(500).json({
+      error: "Failed to update teacher",
+      details: error.message,
+    });
+  }
+};
+
+export const unassignTeacherFromCourse = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, courseCode } = req.body;
+    const teacher = await User.findOne({ email, role: "teacher" });
+
+    if (!teacher) {
+      res.status(404).json({ message: "Teacher not found" });
+      return;
+    }
+
+    const course = await Course.findOne({ code: courseCode });
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    const courseId = new mongoose.Types.ObjectId(String(course._id));
+    teacher.enrolledCourses = teacher.enrolledCourses.filter(
+      (id) => !new mongoose.Types.ObjectId(String(id)).equals(courseId)
+    );
+
+    await teacher.save();
+    res.status(200).json({ message: "Course unassigned from teacher successfully" });
+  } catch (error: any) {
+    console.error("Failed to unassign teacher from course:", error);
+    res.status(500).json({
+      error: "Failed to unassign course from teacher",
+      details: error.message,
+    });
+  }
+};

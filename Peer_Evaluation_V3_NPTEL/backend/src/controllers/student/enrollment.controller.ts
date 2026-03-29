@@ -1,6 +1,6 @@
-import { Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import Enrollment from "../../models/Enrollment.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 export const createEnrollment = async (
   req: AuthenticatedRequest,

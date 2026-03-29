@@ -1,52 +1,42 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { User } from '../../models/User.ts';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import { Batch } from '../../models/Batch.ts';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'pes-secret';
 const OTP_STORE = new Map<string, string>();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const sendOtpEmail = async (req: Request, res: Response): Promise<void> => {
+  const normalizedEmail = req.body?.email?.trim().toLowerCase();
 
-const findUserByEmailInsensitive = async (email: string) => {
-  const normalizedEmail = email.trim();
-  return User.findOne({
-    email: { $regex: `^${escapeRegExp(normalizedEmail)}$`, $options: 'i' },
-  });
-};
-
-export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> => {
-  const { email } = req.body;
-  if (!email)
-  { 
+  if (!normalizedEmail) {
     res.status(400).json({ message: 'Email is required' });
     return;
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
-    res.status(409).json({ message: 'Email ID has already been registered' });
+    res.status(409).json({ message: 'Email is already registered' });
     return;
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  OTP_STORE.set(email, otp);
+  OTP_STORE.set(normalizedEmail, otp);
 
-  // Configure transporter
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.MAIL_SENDER || "noreplypeerevaluationsystem@gmail.com",      
-      pass: process.env.MAIL_PASSWORD ||  "twmnfoksvgwfcegh"   
+      user: process.env.MAIL_SENDER || "noreplypeerevaluationsystem@gmail.com",
+      pass: process.env.MAIL_PASSWORD || "twmnfoksvgwfcegh"
     }
   });
 
-  // Email options
   const mailOptions = {
     from: `"OTP Verification" <noreplypeerevaluationsystem@gmail.com>`,
-    to: email,
+    to: normalizedEmail,
     subject: 'Your OTP Code',
     html: `<h3>Your OTP is <span style="color:blue">${otp}</span></h3>`
   };
@@ -61,7 +51,9 @@ export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> 
 };
 
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
-  const { email, otp } = req.body;
+  const email = req.body?.email?.trim().toLowerCase();
+  const { otp } = req.body;
+
   const savedOtp = OTP_STORE.get(email);
 
   if (String(otp) === String(savedOtp)) {
@@ -74,50 +66,72 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, role } = req.body;
-    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const { name, password, role } = req.body;
+    const email = req.body?.email?.trim().toLowerCase();
 
-    const existing = await findUserByEmailInsensitive(normalizedEmail);
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
+
+    const existing = await User.findOne({ email });
     if (existing) {
-      res.status(409).json({ message: 'Email ID has already been registered' });
+      res.status(409).json({ error: 'User already exists' });
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await User.create({
       name,
-      email: normalizedEmail,
+      email,
       password: hashedPassword,
       role,
     });
 
-    const token = jwt.sign({ id: newUser._id, role: newUser.role }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { id: newUser._id, role: newUser.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
-    res.status(201).json({ message: 'User registered successfully', token, role: newUser.role });
+    res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      role: newUser.role,
+      isTA: false,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Registration failed' });
+    res.status(500).json({ error: 'Registration failed' });
   }
 };
-
-import { Batch } from '../../models/Batch.ts'; // ✅ Add this import if not present
 
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const user = await findUserByEmailInsensitive(String(email || ''));
+
+    const user = await User.findOne({ email: email?.trim().toLowerCase() });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
-    // 🔍 Check if the user is a TA in any batch
     const isTA = await Batch.exists({ ta: user._id });
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
-      expiresIn: '7d',
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.json({
       message: "Login successful",
@@ -128,8 +142,10 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Login failed' });
@@ -137,35 +153,31 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const forgotPassword = async (req: Request, res: Response) => {
-  const { email } = req.body;
-  const normalizedEmail = String(email || '').trim();
+  const email = req.body?.email?.trim().toLowerCase();
 
   try {
-    const user = await findUserByEmailInsensitive(normalizedEmail);
+    const user = await User.findOne({ email });
+
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
 
-    // Generate a password reset token (valid for 15 mins)
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '15m' });
 
-    // Reset link
-    //const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
     const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
 
-    // Send email
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.MAIL_SENDER || "noreplypeerevaluationsystem@gmail.com",      
-          pass: process.env.MAIL_PASSWORD ||  "twmnfoksvgwfcegh"   
-        }
-      });
+      service: 'gmail',
+      auth: {
+        user: process.env.MAIL_SENDER || "noreplypeerevaluationsystem@gmail.com",
+        pass: process.env.MAIL_PASSWORD || "twmnfoksvgwfcegh"
+      }
+    });
 
     await transporter.sendMail({
       from: `"Password Reset" <noreplypeerevaluationsystem@gmail.com>`,
-      to: user.email,
+      to: email,
       subject: 'Reset your password',
       html: `
         <h3>Hello, ${user.name || 'User'}</h3>
@@ -176,30 +188,33 @@ export const forgotPassword = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ message: 'Password reset link sent to email.' });
+
   } catch (err) {
     console.error('Error in forgotPassword:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// Reset password controller
 export const resetPassword = async (req: Request, res: Response) => {
   const { token, newPassword } = req.body;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
 
     const user = await User.findById(decoded.id);
+
     if (!user) {
       res.status(400).json({ message: 'Invalid token or user not found' });
       return;
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
+
     user.password = hashedPassword;
     await user.save();
 
     res.status(200).json({ message: 'Password updated successfully' });
+
   } catch (err) {
     console.error('Reset token error:', err);
     res.status(400).json({ message: 'Invalid or expired reset token' });

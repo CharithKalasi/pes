@@ -1,8 +1,8 @@
-import { Response } from "express";
+import type { Response } from "express";
 import { Exam } from "../../models/Exam.ts";
 import { Batch } from "../../models/Batch.ts";
 import { Course } from "../../models/Course.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 export const getTeacherExams = async (
   req: AuthenticatedRequest,
@@ -26,7 +26,7 @@ export const getTeacherExams = async (
           endTime: exam.endTime,
           numQuestions: exam.numQuestions,
           k: exam.k,
-          questions: exam.questions, 
+          maxMarks: exam.maxMarks,
         };
       })
     );

@@ -1,5 +1,5 @@
 // middlewares/authorizeTA.ts
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { Batch } from '../models/Batch.ts'; // adjust if your path is different
 
 export const authorizeTA = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { Exam } from "../../models/Exam.ts";
 import { Submission } from "../../models/Submission.ts";
 import { Batch } from "../../models/Batch.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 // Create a new exam
 // Create a new exam
