@@ -112,7 +112,12 @@ export default function Register() {
       await axios.post(`http://localhost:${PORT}/api/auth/send`, { email });
       navigate('/otp', { state: { email, password, role, name } });
     } catch (err: any) {
-      showMessage(err?.response?.data?.message || 'Registration failed', 'error');
+      showMessage(
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        'Registration failed',
+        'error'
+      );
     } finally {
       setIsSubmitting(false);
     }
