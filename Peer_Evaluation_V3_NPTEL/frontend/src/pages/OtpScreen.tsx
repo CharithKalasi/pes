@@ -14,6 +14,8 @@ export default function OtpScreen() {
   
 
   const handleVerify = async () => {
+    setError('');
+
     try {
       console.log('Verifying OTP with:', { email, otp });
       console.log('Registering with:', {
@@ -50,9 +52,13 @@ export default function OtpScreen() {
       } else {
         setError('Invalid OTP');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Verification or registration failed');
+      setError(
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        'Verification or registration failed'
+      );
     }
   };
 

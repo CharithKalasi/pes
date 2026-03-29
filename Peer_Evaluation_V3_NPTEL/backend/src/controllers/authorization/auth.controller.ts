@@ -16,6 +16,12 @@ export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> 
     return;
   }
 
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    res.status(409).json({ message: 'Email ID has already been registered' });
+    return;
+  }
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   OTP_STORE.set(email, otp);
 
@@ -63,7 +69,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     const existing = await User.findOne({ email });
     if (existing) {
-      res.status(400).json({ error: 'User already exists' });
+      res.status(409).json({ message: 'Email ID has already been registered' });
       return;
     }
 
@@ -80,7 +86,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     res.status(201).json({ message: 'User registered successfully', token, role: newUser.role });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Registration failed' });
+    res.status(500).json({ message: 'Registration failed' });
   }
 };
 
