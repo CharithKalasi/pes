@@ -82,7 +82,14 @@ const StudentDashboard = () => {
                         darkMode={darkMode}
                     />
                 ) : (
-                    <CourseList onSelectCourse={(id: string) => setSelectedCourseId(id)} darkMode={darkMode} />
+                    <CourseList
+                        onSelectCourse={(id: string) => setSelectedCourseId(id)}
+                        onGoToEnrollment={() => {
+                            setSelectedCourseId(null);
+                            setActiveMenu('enrollment');
+                        }}
+                        darkMode={darkMode}
+                    />
                 );
             case 'enrollment': return <EnrollmentSection darkMode={darkMode} />;
             case 'peerEvaluation': return <PeerEvaluationsPending darkMode={darkMode} />;

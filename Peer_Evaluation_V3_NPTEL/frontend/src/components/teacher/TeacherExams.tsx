@@ -26,6 +26,36 @@ export function Toast({ message, type, onClose }: ToastProps) {
     </div>
   );
 }
+
+const getExamStatus = (startTime: string, endTime: string) => {
+  const now = new Date();
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+
+  if (now < start) return "Upcoming";
+  if (now > end) return "Ended";
+  return "Ongoing";
+};
+
+const getStatusBadgeClasses = (status: string) => {
+  if (status === "Upcoming") return "bg-yellow-100 text-yellow-800";
+  if (status === "Ongoing") return "bg-green-100 text-green-800";
+  return "bg-gray-200 text-gray-700";
+};
+
+const getSimpleCountdown = (target: string, prefix: string) => {
+  const diff = new Date(target).getTime() - Date.now();
+  if (diff <= 0) return null;
+
+  const totalMinutes = Math.floor(diff / 60000);
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  if (days > 0) return `${prefix} in ${days}d ${hours}h`;
+  if (hours > 0) return `${prefix} in ${hours}h ${minutes}m`;
+  return `${prefix} in ${minutes}m`;
+};
 interface Course {
   _id: string;
   name: string;
@@ -60,6 +90,7 @@ export default function TeacherExams() {
   const [numQuestions, setNumQuestions] = useState<number>(1);
   const [maxMarks, setMaxMarks] = useState<number[]>([0]);
   const [questionPaperFile, setQuestionPaperFile] = useState<File | null>(null);
+  const [now, setNow] = useState(Date.now());
 
   // Loading states
   const [allLoading, setAllLoading] = useState(true);
@@ -100,6 +131,11 @@ export default function TeacherExams() {
       setBatchLoading(false);
     }
   }, [selectedCourse, selectedBatch]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const refreshExams = async () => {
     if (selectedCourse && selectedBatch) {
@@ -420,7 +456,25 @@ export default function TeacherExams() {
         <tbody>
           {data.map((exam) => (
             <tr key={exam._id} className="bg-white hover:bg-[#f6e6ff] transition shadow-sm rounded-xl">
-              <td className="px-4 py-2 font-semibold">{exam.title}</td>
+              <td className="px-4 py-2 font-semibold">
+                <div className="flex flex-col gap-1">
+                  <span>{exam.title}</span>
+                  <span
+                    className={`w-fit rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeClasses(
+                      getExamStatus(exam.startTime, exam.endTime)
+                    )}`}
+                  >
+                    {getExamStatus(exam.startTime, exam.endTime)}
+                  </span>
+                  <span className="text-xs font-normal text-gray-500">
+                    {getExamStatus(exam.startTime, exam.endTime) === "Upcoming"
+                      ? getSimpleCountdown(exam.startTime, "Starts")
+                      : getExamStatus(exam.startTime, exam.endTime) === "Ongoing"
+                        ? getSimpleCountdown(exam.endTime, "Ends")
+                        : "Already ended"}
+                  </span>
+                </div>
+              </td>
               <td className="px-4 py-2">{courses.find(c => c._id === (exam as any).course || selectedCourse)?.name || ""}</td>
               <td className="px-4 py-2">
                 {courses.find(c => c._id === (exam as any).course || selectedCourse)
@@ -510,6 +564,7 @@ export default function TeacherExams() {
   const isFiltered = !!(selectedCourse && selectedBatch);
   const isLoading = isFiltered ? batchLoading : allLoading;
   const data = isFiltered ? exams : allExams;
+  void now;
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen pt-10 px-6 pb-20"

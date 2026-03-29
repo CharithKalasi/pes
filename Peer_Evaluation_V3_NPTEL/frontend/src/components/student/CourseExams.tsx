@@ -52,6 +52,21 @@ const getCountdown = (target: string) => {
   return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
+const getExamStatus = (startTime: string, endTime: string, now: Date) => {
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+
+  if (now < start) return 'Upcoming';
+  if (now > end) return 'Ended';
+  return 'Ongoing';
+};
+
+const getStatusBadgeClasses = (status: string) => {
+  if (status === 'Upcoming') return 'bg-yellow-100 text-yellow-800';
+  if (status === 'Ongoing') return 'bg-green-100 text-green-800';
+  return 'bg-gray-200 text-gray-700';
+};
+
 const CourseExams = ({ courseId, onBack, darkMode }: Props) => {
   const { data: exams, isLoading, error } = useQuery({
     queryKey: ['courseExams', courseId],
@@ -157,6 +172,7 @@ const CourseExams = ({ courseId, onBack, darkMode }: Props) => {
         const isStarted = new Date(exam.startTime) <= now;
         const isEnded = new Date(exam.endTime) < now;
         const canSubmit = isStarted && !isEnded;
+        const status = getExamStatus(exam.startTime, exam.endTime, now);
         const countdownText = !isStarted
           ? `Starts in ${getCountdown(exam.startTime)}`
           : !isEnded
@@ -169,6 +185,9 @@ const CourseExams = ({ courseId, onBack, darkMode }: Props) => {
             className={`rounded-2xl p-6 shadow border transition-all relative ${darkMode ? "bg-[#1A1A2E] text-white border-gray-700" : "bg-white text-gray-800 border-gray-200"}`}
           >
             <h3 className="text-xl font-bold mb-2">{exam.title}</h3>
+            <span className={`mb-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClasses(status)}`}>
+              {status}
+            </span>
             <p className="text-sm mb-1">Batch: {exam.batch?.name}</p>
             <p className="text-sm mb-2">
               ⏰ {formatIST(exam.startTime)} → {formatIST(exam.endTime)}
