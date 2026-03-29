@@ -18,7 +18,7 @@ interface UncheckedTicket {
     _id: string;
     title: string;
     numQuestions: number;
-    answerKeyPdf?: Buffer;
+    answerKeyPdf?: string;
     answerKeyMimeType?: string;
     course: {
       name: string;
