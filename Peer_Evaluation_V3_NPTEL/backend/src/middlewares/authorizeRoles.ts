@@ -1,4 +1,4 @@
-import { Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 
 export const authorizeRoles = (...roles: string[]) => {
   return (req: any, res: Response, next: NextFunction): void => {

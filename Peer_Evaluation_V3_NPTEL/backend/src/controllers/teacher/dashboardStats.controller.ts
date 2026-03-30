@@ -1,7 +1,7 @@
-import { Response } from "express";
+import type { Response } from "express";
 import { Batch } from "../../models/Batch.ts";
 import { Exam } from "../../models/Exam.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 export const getTeacherDashboardStats = async (
   req: AuthenticatedRequest,

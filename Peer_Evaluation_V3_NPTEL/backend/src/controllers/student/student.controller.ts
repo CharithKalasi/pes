@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { Batch } from '../../models/Batch.ts'; // Make sure the path is correct
 
 interface AuthRequest extends Request {

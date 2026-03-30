@@ -32,6 +32,9 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
     const [loading, setLoading] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
     const [error, setError] = useState<string | null>(null);
+    const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+    const [editingEnrollmentId, setEditingEnrollmentId] = useState<string | null>(null);
+    const [editingNotes, setEditingNotes] = useState("");
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -112,6 +115,74 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
         }
     };
 
+    const startEdit = (enrollment: Enrollment) => {
+        setEditingEnrollmentId(enrollment._id);
+        setEditingNotes(enrollment.notes || "");
+    };
+
+    const cancelEdit = () => {
+        setEditingEnrollmentId(null);
+        setEditingNotes("");
+    };
+
+    const handleEditSave = async (enrollmentId: string) => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const previous = [...enrollments];
+        const nextNotes = editingNotes.trim();
+
+        setActionLoadingId(enrollmentId);
+        setError(null);
+
+        setEnrollments(prev =>
+            prev.map(enr =>
+                enr._id === enrollmentId ? { ...enr, notes: nextNotes } : enr
+            )
+        );
+
+        try {
+            await axios.put(
+                `http://localhost:${PORT}/api/student/enrollment/${enrollmentId}`,
+                { notes: nextNotes },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            cancelEdit();
+        } catch (err: any) {
+            setEnrollments(previous);
+            setError(err.response?.data?.message || "Failed to update enrollment request.");
+        } finally {
+            setActionLoadingId(null);
+        }
+    };
+
+    const handleCancelRequest = async (enrollmentId: string) => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        if (!window.confirm("Withdraw this pending enrollment request?")) return;
+
+        const previous = [...enrollments];
+        setActionLoadingId(enrollmentId);
+        setError(null);
+
+        setEnrollments(prev => prev.filter(enr => enr._id !== enrollmentId));
+
+        try {
+            await axios.delete(
+                `http://localhost:${PORT}/api/student/enrollment/${enrollmentId}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (editingEnrollmentId === enrollmentId) {
+                cancelEdit();
+            }
+        } catch (err: any) {
+            setEnrollments(previous);
+            setError(err.response?.data?.message || "Failed to cancel enrollment request.");
+        } finally {
+            setActionLoadingId(null);
+        }
+    };
+
     const cardBg = darkMode ? "bg-[#1A1A2E] border-gray-700 text-white" : "bg-white border-gray-200 text-gray-800";
     const textMuted = darkMode ? "text-gray-300" : "text-gray-600";
     const headerColor = darkMode ? "text-purple-300" : "text-purple-800";
@@ -183,6 +254,7 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
                                 <th className="p-2 text-left">Batch</th>
                                 <th className="p-2 text-left">Status</th>
                                 <th className="p-2 text-left">Notes</th>
+                                <th className="p-2 text-left">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -191,7 +263,61 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
                                     <td className="p-2">{enr.courseId?.name || "-"}</td>
                                     <td className="p-2">{enr.batchId?.name || "-"}</td>
                                     <td className="p-2 capitalize">{enr.status}</td>
-                                    <td className="p-2">{enr.notes || "-"}</td>
+                                    <td className="p-2">
+                                        {editingEnrollmentId === enr._id ? (
+                                            <input
+                                                value={editingNotes}
+                                                onChange={(e) => setEditingNotes(e.target.value)}
+                                                className={`w-full border rounded px-2 py-1 text-sm ${darkMode ? "bg-gray-900 text-white border-gray-700" : "bg-white border-gray-300"}`}
+                                                placeholder="Update notes"
+                                            />
+                                        ) : (
+                                            enr.notes || "-"
+                                        )}
+                                    </td>
+                                    <td className="p-2">
+                                        {enr.status === "pending" ? (
+                                            <div className="flex gap-2 flex-wrap">
+                                                {editingEnrollmentId === enr._id ? (
+                                                    <>
+                                                        <button
+                                                            className="px-3 py-1 rounded bg-green-600 text-white text-xs hover:bg-green-700 disabled:opacity-50"
+                                                            onClick={() => handleEditSave(enr._id)}
+                                                            disabled={actionLoadingId === enr._id}
+                                                        >
+                                                            {actionLoadingId === enr._id ? "Saving..." : "Save"}
+                                                        </button>
+                                                        <button
+                                                            className="px-3 py-1 rounded bg-gray-500 text-white text-xs hover:bg-gray-600"
+                                                            onClick={cancelEdit}
+                                                            disabled={actionLoadingId === enr._id}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            className="px-3 py-1 rounded bg-blue-600 text-white text-xs hover:bg-blue-700 disabled:opacity-50"
+                                                            onClick={() => startEdit(enr)}
+                                                            disabled={actionLoadingId === enr._id}
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            className="px-3 py-1 rounded bg-red-600 text-white text-xs hover:bg-red-700 disabled:opacity-50"
+                                                            onClick={() => handleCancelRequest(enr._id)}
+                                                            disabled={actionLoadingId === enr._id}
+                                                        >
+                                                            {actionLoadingId === enr._id ? "Withdrawing..." : "Withdraw"}
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className={textMuted}>No actions</span>
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

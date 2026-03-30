@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../../models/User.ts';
+import { Batch } from '../../models/Batch.ts';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
@@ -25,28 +26,34 @@ const createMailTransporter = () => {
   });
 };
 
-export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> => {
-  const { email } = req.body;
-  if (!email)
-  { 
+export const sendOtpEmail = async (req: Request, res: Response): Promise<void> => {
+  const normalizedEmail = req.body?.email?.trim().toLowerCase();
+
+  if (!normalizedEmail) {
     res.status(400).json({ message: 'Email is required' });
     return;
   }
 
+  const existingUser = await User.findOne({ email: normalizedEmail });
+  if (existingUser) {
+    res.status(409).json({ message: 'Email is already registered' });
+    return;
+  }
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  OTP_STORE.set(email, otp);
+  OTP_STORE.set(normalizedEmail, otp);
 
   try {
     const transporter = createMailTransporter();
     const mailSender = process.env.MAIL_SENDER!;
-    const mailOptions = {
+
+    await transporter.sendMail({
       from: `"OTP Verification" <${mailSender}>`,
-      to: email,
+      to: normalizedEmail,
       subject: 'Your OTP Code',
       html: `<h3>Your OTP is <span style="color:blue">${otp}</span></h3>`
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
     console.error(error);
@@ -55,7 +62,8 @@ export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> 
 };
 
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
-  const { email, otp } = req.body;
+  const email = req.body?.email?.trim().toLowerCase();
+  const { otp } = req.body;
   const savedOtp = OTP_STORE.get(email);
 
   if (String(otp) === String(savedOtp)) {
@@ -68,11 +76,17 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, password, role } = req.body;
+    const email = req.body?.email?.trim().toLowerCase();
+
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
 
     const existing = await User.findOne({ email });
     if (existing) {
-      res.status(400).json({ error: 'User already exists' });
+      res.status(409).json({ error: 'User already exists' });
       return;
     }
 
@@ -86,26 +100,34 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     const token = jwt.sign({ id: newUser._id, role: newUser.role }, JWT_SECRET, { expiresIn: '7d' });
 
-    res.status(201).json({ message: 'User registered successfully', token, role: newUser.role });
+    res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      role: newUser.role,
+      isTA: false,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Registration failed' });
   }
 };
 
-import { Batch } from '../../models/Batch.ts'; // ✅ Add this import if not present
-
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email?.trim().toLowerCase() });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
-    // 🔍 Check if the user is a TA in any batch
     const isTA = await Batch.exists({ ta: user._id });
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
@@ -113,7 +135,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     });
 
     res.json({
-      message: "Login successful",
+      message: 'Login successful',
       token,
       role: user.role,
       isTA: Boolean(isTA),
@@ -121,6 +143,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -130,7 +153,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const forgotPassword = async (req: Request, res: Response) => {
-  const { email } = req.body;
+  const email = req.body?.email?.trim().toLowerCase();
 
   try {
     const user = await User.findOne({ email });
@@ -139,11 +162,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       return;
     }
 
-    // Generate a password reset token (valid for 15 mins)
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '15m' });
-
-    // Reset link
-    //const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
     const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
 
     const transporter = createMailTransporter();
@@ -168,12 +187,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
-// Reset password controller
 export const resetPassword = async (req: Request, res: Response) => {
   const { token, newPassword } = req.body;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
 
     const user = await User.findById(decoded.id);
     if (!user) {

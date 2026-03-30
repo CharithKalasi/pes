@@ -1,5 +1,5 @@
 import express from 'express';
-import { RequestHandler } from 'express';
+import type { RequestHandler } from 'express';
 import { authMiddleware } from "../../middlewares/authMiddleware.ts";      
 import { authorizeRoles } from "../../middlewares/authorizeRoles.ts";
 import {

@@ -2,14 +2,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, type SetStateAction } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiMoon, FiSun } from 'react-icons/fi';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
-
-const currentPalette = {
-  'accent-purple': '#7c3aed',
-  'accent-lilac': '#c4b5fd'
-};
 
 // DialogBox component
 type DialogBoxProps = {
@@ -109,10 +104,12 @@ export default function Register() {
     try {
       setIsSubmitting(true);
       showMessage('Sending OTP...');
-      await axios.post(`http://localhost:${PORT}/api/auth/send`, { email });
-      navigate('/otp', { state: { email, password, role, name } });
-    } catch (err: any) {
-      showMessage(err?.response?.data?.message || 'Registration failed', 'error');
+      const normalizedEmail = email.trim().toLowerCase();
+      await axios.post(`http://localhost:${PORT}/api/auth/send`, { email: normalizedEmail });
+      navigate('/otp', { state: { email: normalizedEmail, password, role, name } });
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
+      showMessage(error.response?.data?.message || 'Registration failed', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -192,18 +189,11 @@ export default function Register() {
       <div className="fixed bottom-6 right-6 z-20">
         <button
           onClick={toggleDarkMode}
-          className="h-12 w-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2"
-          style={{
-            backgroundColor: darkMode ? currentPalette['accent-purple'] : currentPalette['accent-lilac'],
-            color: 'white',
-            boxShadow: darkMode
-              ? `0 4px 15px ${currentPalette['accent-purple']}60`
-              : `0 4px 15px ${currentPalette['accent-lilac']}60`,
-            // @ts-ignore
-            ['--tw-ring-color' as any]: darkMode
-              ? currentPalette['accent-purple'] + '70'
-              : currentPalette['accent-lilac'] + '70',
-          }}
+          className={`h-12 w-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white ${
+            darkMode
+              ? 'bg-violet-600 shadow-violet-600/40 focus:ring-violet-500'
+              : 'bg-violet-300 shadow-violet-300/50 focus:ring-violet-300'
+          }`}
         >
           {darkMode ? <FiMoon className="w-6 h-6" /> : <FiSun className="w-6 h-6" />}
         </button>

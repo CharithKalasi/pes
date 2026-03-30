@@ -1,6 +1,6 @@
 
 import express from "express";
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import connectDB from "./config/db.ts";
 import studentRoutes from "./routes/student/student.routes.ts";
 import taRoutes from "./routes/ta/ta.routes.ts"; 
@@ -28,9 +28,22 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
 
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow same-origin/non-browser requests (no Origin header) and known frontend origins.
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],

@@ -1,7 +1,7 @@
-import { Response } from "express";
+import type { Response } from "express";
 import { Batch } from "../../models/Batch.ts";
 import { User } from "../../models/User.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 import { sendTAAssignmentEmails } from "../../utils/sendEmailReminder.ts";
 import { Types } from "mongoose";
 

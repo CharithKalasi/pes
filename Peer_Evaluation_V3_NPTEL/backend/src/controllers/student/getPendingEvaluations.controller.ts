@@ -1,5 +1,5 @@
-import { Response, NextFunction } from "express";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { Response, NextFunction } from "express";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 import { Evaluation } from "../../models/Evaluation.ts";
 import { Submission } from "../../models/Submission.ts";
 
@@ -19,7 +19,7 @@ export const getPendingEvaluations = async (
     })
       .populate({
         path: "exam",
-        select: "title questions numQuestions maxMarks answerKeyPdf answerKeyMimeType",
+        select: "title numQuestions maxMarks answerKeyPdf answerKeyMimeType",
       })
       .lean();
 
@@ -28,7 +28,6 @@ export const getPendingEvaluations = async (
         const exam = ev.exam as unknown as {
           _id: string;
           title: string;
-          questions: { questionText: string; maxMarks: number }[];
           numQuestions?: number;
           maxMarks?: number[];
           answerKeyPdf?: Buffer;
@@ -54,9 +53,9 @@ export const getPendingEvaluations = async (
           exam: {
             _id: exam._id,
             title: exam.title,
-            questions: exam.questions,
-            numQuestions: exam.numQuestions ?? (exam.questions ? exam.questions.length : 0),
-            maxMarks: exam.maxMarks ?? (exam.questions ? exam.questions.map(q => q.maxMarks) : []),
+            questions: [],
+            numQuestions: exam.numQuestions ?? exam.maxMarks?.length ?? 0,
+            maxMarks: exam.maxMarks ?? [],
           },
           submissionId: submission ? submission._id : null,
           pdfUrl: submission

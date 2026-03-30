@@ -142,3 +142,111 @@
 //     res.status(500).json({ error: 'Failed to delete student' });
 //   }
 // };
+import type { Request, Response } from "express";
+import mongoose from "mongoose";
+import { User } from "../../models/User.ts";
+import { Course } from "../../models/Course.ts";
+
+export const getAllStudents = async (_req: Request, res: Response) => {
+  try {
+    const students = await User.find({ role: "student" }).populate(
+      "enrolledCourses",
+      "name code"
+    );
+    res.status(200).json(students);
+  } catch (error) {
+    console.error("Failed to fetch students:", error);
+    res.status(500).json({ error: "Failed to fetch students" });
+  }
+};
+
+export const deleteStudent = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+    const deleted = await User.findOneAndDelete({ email, role: "student" });
+
+    if (!deleted) {
+      res.status(404).json({ error: "Student not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Student deleted successfully" });
+  } catch (error) {
+    console.error("Failed to delete student:", error);
+    res.status(500).json({ error: "Failed to delete student" });
+  }
+};
+
+export const assignStudentToCourse = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, courseCode } = req.body;
+    const student = await User.findOne({ email, role: "student" });
+
+    if (!student) {
+      res.status(404).json({ message: "Student not found" });
+      return;
+    }
+
+    const course = await Course.findOne({ code: courseCode });
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    const courseId = new mongoose.Types.ObjectId(String(course._id));
+    const alreadyEnrolled = student.enrolledCourses.some((id) =>
+      new mongoose.Types.ObjectId(String(id)).equals(courseId)
+    );
+
+    if (!alreadyEnrolled) {
+      student.enrolledCourses.push(courseId);
+      await student.save();
+    }
+
+    res.status(200).json({ message: "Student assigned to course successfully" });
+  } catch (error: any) {
+    console.error("Failed to assign student to course:", error);
+    res.status(500).json({
+      error: "Failed to assign student to course",
+      details: error.message,
+    });
+  }
+};
+
+export const unassignStudentFromCourse = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, courseCode } = req.body;
+    const student = await User.findOne({ email, role: "student" });
+
+    if (!student) {
+      res.status(404).json({ message: "Student not found" });
+      return;
+    }
+
+    const course = await Course.findOne({ code: courseCode });
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    const courseId = new mongoose.Types.ObjectId(String(course._id));
+    student.enrolledCourses = student.enrolledCourses.filter(
+      (id) => !new mongoose.Types.ObjectId(String(id)).equals(courseId)
+    );
+
+    await student.save();
+    res.status(200).json({ message: "Student unassigned from course successfully" });
+  } catch (error: any) {
+    console.error("Failed to unassign student from course:", error);
+    res.status(500).json({
+      error: "Failed to unassign student from course",
+      details: error.message,
+    });
+  }
+};

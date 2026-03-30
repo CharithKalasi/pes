@@ -1,5 +1,5 @@
-import { Response, NextFunction } from "express";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { Response, NextFunction } from "express";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 import { Evaluation } from "../../models/Evaluation.ts";
 import { Exam } from "../../models/Exam.ts";
 

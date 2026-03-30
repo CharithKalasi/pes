@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs";
 import os from "os";

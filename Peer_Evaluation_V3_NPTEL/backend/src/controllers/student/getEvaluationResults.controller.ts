@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { Evaluation } from "../../models/Evaluation.ts";
-import { IUser } from "../../models/User.ts";
+import type { IUser } from "../../models/User.ts";
 
 // Extend Express Request interface to include 'user'
 declare global {

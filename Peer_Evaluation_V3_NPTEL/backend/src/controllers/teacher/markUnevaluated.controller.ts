@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { Evaluation } from "../../models/Evaluation.ts";
 import { Ticket } from "../../models/Ticket.ts";
 import { Batch } from "../../models/Batch.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 export const generateTicketsForPendingEvaluations = async (
   req: AuthenticatedRequest,

@@ -1,6 +1,6 @@
-import { Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import Enrollment from "../../models/Enrollment.ts";
-import AuthenticatedRequest from "../../middlewares/authMiddleware.ts";
+import type { AuthenticatedRequest } from "../../middlewares/authMiddleware.ts";
 
 export const createEnrollment = async (
   req: AuthenticatedRequest,
@@ -78,6 +78,89 @@ export const getStudentEnrollments = async (
       .populate("batchId")
       .sort({ createdAt: -1 });
     res.status(200).json(enrollments);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateEnrollmentRequest = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const studentId = req.user?._id;
+    const { enrollmentId } = req.params;
+    const { notes } = req.body;
+
+    if (!studentId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const enrollment = await Enrollment.findOne({
+      _id: enrollmentId,
+      studentId,
+    });
+
+    if (!enrollment) {
+      res.status(404).json({ message: "Enrollment request not found" });
+      return;
+    }
+
+    if (enrollment.status !== "pending") {
+      res
+        .status(400)
+        .json({ message: "Only pending enrollment requests can be edited." });
+      return;
+    }
+
+    enrollment.notes = String(notes ?? "").trim();
+    await enrollment.save();
+
+    res.status(200).json({
+      message: "Enrollment request updated.",
+      enrollment,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const cancelEnrollmentRequest = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const studentId = req.user?._id;
+    const { enrollmentId } = req.params;
+
+    if (!studentId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const enrollment = await Enrollment.findOne({
+      _id: enrollmentId,
+      studentId,
+    });
+
+    if (!enrollment) {
+      res.status(404).json({ message: "Enrollment request not found" });
+      return;
+    }
+
+    if (enrollment.status !== "pending") {
+      res
+        .status(400)
+        .json({ message: "Only pending enrollment requests can be cancelled." });
+      return;
+    }
+
+    await Enrollment.deleteOne({ _id: enrollmentId, studentId });
+
+    res.status(200).json({ message: "Enrollment request cancelled." });
   } catch (error) {
     next(error);
   }

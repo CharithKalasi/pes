@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { Submission } from "../../models/Submission.ts";
 
 export const getSubmissions = async (

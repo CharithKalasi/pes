@@ -1,5 +1,6 @@
 import { Batch } from "../models/Batch.ts";
-import { IUser, User } from "../models/User.ts";
+import type { IUser } from "../models/User.ts";
+import { User } from "../models/User.ts";
 import { sendReminderEmail } from "./email.ts";
 
 export const sendBatchReminderEmails = async (
