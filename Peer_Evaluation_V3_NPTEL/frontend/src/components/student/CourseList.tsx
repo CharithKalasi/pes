@@ -11,7 +11,7 @@ type Course = {
 
 type Props = {
   onSelectCourse: (courseId: string) => void;
-  onGoToEnrollment: () => void;
+  onGoToEnrollment?: () => void;
   darkMode: boolean;
 };
 
@@ -74,7 +74,7 @@ const CourseList = ({ onSelectCourse, onGoToEnrollment, darkMode }: Props) => {
           <p className="mb-4">You are not enrolled in any courses yet.</p>
           <button
             className={commonButtonClasses}
-            onClick={onGoToEnrollment}
+            onClick={() => onGoToEnrollment?.()}
             style={{ background: buttonBg }}
           >
             <span className={commonButtonBeforeClasses}></span>

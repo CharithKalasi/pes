@@ -68,7 +68,7 @@ interface Exam {
   endTime: string;
   numQuestions: number;
   k: number;
-  // questions?: { q?: string; max?: number; questionText?: string; maxMarks?: number }[];
+  maxMarks?: number[];
 }
 
 export default function TeacherExams() {
@@ -89,7 +89,7 @@ export default function TeacherExams() {
   // Remove questions state, use numQuestions and questionPaperFile
   const [numQuestions, setNumQuestions] = useState<number>(1);
   const [maxMarks, setMaxMarks] = useState<number[]>([0]);
-  const [questionPaperFile, setQuestionPaperFile] = useState<File | null>(null);
+  const [, setQuestionPaperFile] = useState<File | null>(null);
   const [now, setNow] = useState(Date.now());
 
   // Loading states
