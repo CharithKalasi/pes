@@ -30,7 +30,7 @@ const router = express.Router();
 router.post("/courses",authMiddleware,authorizeRoles("admin"),addCourse);
 //router.put("/courses/:courseId",authMiddleware,authorizeRoles("admin"),updateCourse);
 
-router.get('/users', async (_req: Request, res: Response) => {
+router.get('/users', authMiddleware, authorizeRoles("admin"), async (_req: Request, res: Response) => {
   try {
     const users = await User.find().select('name email role');
     res.json(users);
@@ -52,9 +52,9 @@ router.get('/courses/',authMiddleware,authorizeRoles("admin"), getAllCourses);
 router.delete("/batches/:id",authMiddleware,authorizeRoles("admin"),deleteBatch);
 router.get('/batches/',authMiddleware,authorizeRoles("admin"), getAllBatches);
 //router.get('/batches/:id',authMiddleware,authorizeRoles("admin"), getBatchById);
-router.post("/update-role", updateStudentTaRole);
-router.post('/create-batch-with-names', createBatchWithNames);
-router.delete("/:courseId", deleteCourseAndBatches);
+router.post("/update-role", authMiddleware, authorizeRoles("admin"), updateStudentTaRole);
+router.post('/create-batch-with-names', authMiddleware, authorizeRoles("admin"), createBatchWithNames);
+router.delete("/:courseId", authMiddleware, authorizeRoles("admin"), deleteCourseAndBatches);
 export default router;
 
 

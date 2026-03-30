@@ -13,6 +13,8 @@ import ViewMarks from "../components/student/ViewMarks";
 import DashboardOverview from "../components/student/DashboardOverview";
 import PeerEvaluationsPending from "../components/student/PeerEvaluationsPending";
 import EnrollmentSection from "../components/student/EnrollmentSection";
+import NotificationBell from "../components/notifications/NotificationBell";
+
 const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const lightPalette = {
@@ -35,7 +37,7 @@ const darkPalette = {
     'white': '#FFFFFF'
 };
 
-const getColors = (isDarkMode: boolean) => isDarkMode ? darkPalette : lightPalette;
+const getColors = (isDarkMode: Boolean) => isDarkMode ? darkPalette : lightPalette;
 
 const StudentDashboard = () => {
     const [token] = useState(localStorage.getItem('token'));
@@ -46,12 +48,7 @@ const StudentDashboard = () => {
     const [showSidebar, setShowSidebar] = useState(true);
     const [logoutDialog, setLogoutDialog] = useState(false);
     const [showProfilePopup, setShowProfilePopup] = useState(false);
-    const [profileData, setProfileData] = useState({
-        name: localStorage.getItem('userName') || "",
-        email: localStorage.getItem('userEmail') || "",
-        role: localStorage.getItem('role') || "",
-        isTA: localStorage.getItem('isTA') === 'true',
-    });
+    const [profileData, setProfileData] = useState({ name: "", email: "", role: "", isTA: false });
 
     const navigate = useNavigate();
     const currentPalette = getColors(darkMode);
@@ -66,13 +63,7 @@ const StudentDashboard = () => {
         else {
             axios.get(`http://localhost:${PORT}/api/student/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
-            }).then(res => {
-                setProfileData(res.data);
-                localStorage.setItem('userName', res.data.name || '');
-                localStorage.setItem('userEmail', res.data.email || '');
-                localStorage.setItem('role', res.data.role || '');
-                localStorage.setItem('isTA', res.data.isTA ? 'true' : 'false');
-            }).catch(console.error);
+            }).then(res => setProfileData(res.data)).catch(console.error);
         }
     }, [token, navigate]);
 
@@ -92,25 +83,12 @@ const StudentDashboard = () => {
                         darkMode={darkMode}
                     />
                 ) : (
-                    <CourseList
-                        onSelectCourse={(id: string) => setSelectedCourseId(id)}
-                        onGoToEnrollment={() => {
-                            setSelectedCourseId(null);
-                            setActiveMenu('enrollment');
-                        }}
-                        darkMode={darkMode}
-                    />
+                    <CourseList onSelectCourse={(id: string) => setSelectedCourseId(id)} darkMode={darkMode} />
                 );
             case 'enrollment': return <EnrollmentSection darkMode={darkMode} />;
             case 'peerEvaluation': return <PeerEvaluationsPending darkMode={darkMode} />;
             case 'viewMarks': return <ViewMarks darkMode={darkMode} />;
-            case 'profile':
-                return (
-                    <ProfileSection
-                        darkMode={darkMode}
-                        onNavigate={(menu) => { setActiveMenu(menu); setSelectedCourseId(null); }}
-                    />
-                );
+            case 'profile': return <ProfileSection darkMode={darkMode} />;
             default: return <p className="text-center" style={{ color: currentPalette['text-muted'] }}>Select a menu</p>;
         }
     };
@@ -155,6 +133,7 @@ const StudentDashboard = () => {
             <div className="flex-1 overflow-y-auto p-6 relative">
                 {/* Top Right Profile Icon and TA Dashboard Button */}
                 <div className="absolute top-6 right-6 flex items-center gap-4 z-40">
+                    <NotificationBell currentPalette={currentPalette} />
                     {/* Profile Icon */}
                     <div className="relative">
                         <button

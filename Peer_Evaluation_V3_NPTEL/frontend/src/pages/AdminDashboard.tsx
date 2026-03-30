@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiMoon, FiSun } from 'react-icons/fi';
+import NotificationBell from '../components/notifications/NotificationBell';
 
 const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
@@ -1043,6 +1044,7 @@ const AdminDashboard = () => {
         >
             <h1 className="text-xl font-bold uppercase" style={{ color: currentPalette['text-dark'] }}>{activeTab}</h1>
             <div className="flex items-center gap-4">
+                <NotificationBell currentPalette={currentPalette} />
                 {/* Dark mode toggle - placed at the bottom right of the main content area */}
                 {/* To ensure it stays absolutely positioned relative to the main content area */}
                 <div className="fixed bottom-6 right-6 z-30"> 

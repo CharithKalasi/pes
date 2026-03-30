@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
-import type { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { User } from "../models/User.ts";
 
 const JWT_SECRET = process.env.JWT_SECRET || "pes-secret";
 
 // Extend req to include user
-export interface AuthenticatedRequest extends Request {
+interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
@@ -22,19 +22,23 @@ export const authMiddleware = async (
   }
 
   try {
+    // console.log(token);
+    // console.log(process.env.JWT_SECRET);
+    // console.log("---------------------");
     const decoded: any = jwt.verify(token, JWT_SECRET);
 
     const user = await User.findById(decoded._id || decoded.id);
-
     if (!user) {
       res.status(404).json({ message: "User not found" });
+
       return;
     }
-
     req.user = user;
+
     next();
   } catch (err) {
     console.log(err);
     res.status(401).json({ message: "Invalid token" });
   }
 };
+export default AuthenticatedRequest;
