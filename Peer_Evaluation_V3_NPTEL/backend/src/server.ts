@@ -83,13 +83,14 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ error: "Something went wrong on the server." });
 });
 
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
 connectDB()
   .then(() => {
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    console.log('MongoDB connected');
   })
   .catch((err) => {
     console.error('DB connection failed:', err);
-    process.exit(1);
   });
