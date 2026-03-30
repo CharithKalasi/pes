@@ -40,18 +40,13 @@ export default function Login() {
         { withCredentials: true }
       );
 
-      const { token, role, user } = res.data;
+      const { token, role, user, isTA } = res.data;
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
       localStorage.setItem('userId', user.id);
       localStorage.setItem('userName', user.name);
       localStorage.setItem('userEmail', user.email);
-      localStorage.setItem('isTA', user.isTA ? 'true' : 'false');
-
-      if (role === 'admin') navigate('/admin');
-      else if (role === 'teacher') navigate('/teacher');
-      else navigate('/dashboard');
-
+      localStorage.setItem('isTA', isTA ? 'true' : 'false');
 
       if (role === 'admin') navigate('/admin');
       else if (role === 'teacher') navigate('/teacher');

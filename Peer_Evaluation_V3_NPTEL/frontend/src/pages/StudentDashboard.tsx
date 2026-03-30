@@ -13,6 +13,7 @@ import ViewMarks from "../components/student/ViewMarks";
 import DashboardOverview from "../components/student/DashboardOverview";
 import PeerEvaluationsPending from "../components/student/PeerEvaluationsPending";
 import EnrollmentSection from "../components/student/EnrollmentSection";
+import NotificationBell from "../components/notifications/NotificationBell";
 
 const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
@@ -132,6 +133,7 @@ const StudentDashboard = () => {
             <div className="flex-1 overflow-y-auto p-6 relative">
                 {/* Top Right Profile Icon and TA Dashboard Button */}
                 <div className="absolute top-6 right-6 flex items-center gap-4 z-40">
+                    <NotificationBell currentPalette={currentPalette} />
                     {/* Profile Icon */}
                     <div className="relative">
                         <button

@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { User } from "../models/User.ts";
 
+const JWT_SECRET = process.env.JWT_SECRET || "pes-secret";
+
 // Extend req to include user
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -23,7 +25,7 @@ export const authMiddleware = async (
     // console.log(token);
     // console.log(process.env.JWT_SECRET);
     // console.log("---------------------");
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded: any = jwt.verify(token, JWT_SECRET);
 
     const user = await User.findById(decoded._id || decoded.id);
     if (!user) {

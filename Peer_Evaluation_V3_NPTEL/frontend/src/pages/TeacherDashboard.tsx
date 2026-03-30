@@ -10,6 +10,7 @@ import TeacherManageRoles from "../components/teacher/ManageRoles";
 import TeacherCourses from "../components/teacher/TeacherCourses";
 import TeacherExams from "../components/teacher/TeacherExams";
 import ChangePassword from "../components/teacher/ChangePassword";
+import NotificationBell from "../components/notifications/NotificationBell";
 
 const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
@@ -18,6 +19,8 @@ const lightPalette = {
   "bg-primary": "#FFFBF6",
   "bg-secondary": "#FFFAF2",
   "sidebar-bg": "#E6E6FA",
+  "accent-lilac": "#C8A2C8",
+  "accent-purple": "#800080",
   "text-dark": "#4B0082",
   "text-muted": "#A9A9A9",
   "text-sidebar-dark": "#4B0082",
@@ -31,6 +34,8 @@ const darkPalette = {
   "bg-primary": "#1A202C", // Dark background
   "bg-secondary": "#2D3748", // Slightly lighter dark background for cards/popups
   "sidebar-bg": "#2A385B", // Dark bluish shade for sidebar
+  "accent-lilac": "#9C27B0",
+  "accent-purple": "#6A1B9A",
   "text-dark": "#E2E8F0", // Light text for contrast
   "text-muted": "#A0AEC0", // Muted light text
   "text-sidebar-dark": "#E2E8F0", // Light text for sidebar
@@ -197,18 +202,21 @@ const TeacherDashboard = () => {
       {/* Main Content */}
       <div className="flex-1 relative overflow-y-auto flex justify-center items-start p-4 z-10">
         <div className="absolute top-4 right-6 z-20">
-          <button
-            onClick={() => setShowProfile((p) => !p)}
-            className="p-2 rounded-full border-2 border-transparent shadow"
-            style={{
-              backgroundColor: currentPalette["white"],
-              borderColor: currentPalette["border-soft"],
-              boxShadow: `0 2px 14px 0 ${currentPalette["shadow-medium"]}`,
-            }}
-            title="Profile"
-          >
-            <ProfileSVG currentColor={currentPalette["text-dark"]} />
-          </button>
+          <div className="flex items-center gap-3">
+            <NotificationBell currentPalette={currentPalette} />
+            <button
+              onClick={() => setShowProfile((p) => !p)}
+              className="p-2 rounded-full border-2 border-transparent shadow"
+              style={{
+                backgroundColor: currentPalette["white"],
+                borderColor: currentPalette["border-soft"],
+                boxShadow: `0 2px 14px 0 ${currentPalette["shadow-medium"]}`,
+              }}
+              title="Profile"
+            >
+              <ProfileSVG currentColor={currentPalette["text-dark"]} />
+            </button>
+          </div>
           <AnimatePresence>
             {showProfile && (
               <motion.div

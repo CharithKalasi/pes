@@ -5,10 +5,11 @@ import { Course } from '../../models/Course.ts';
 import { Batch } from '../../models/Batch.ts';
 import { Exam } from '../../models/Exam.ts';
 import { authMiddleware } from '../../middlewares/authMiddleware.ts'; 
+import { authorizeRoles } from '../../middlewares/authorizeRoles.ts';
 
 const router = Router();
 
-router.get('/counts', async (req: Request, res: Response) => {
+router.get('/counts', authMiddleware, authorizeRoles("admin"), async (req: Request, res: Response) => {
   try {
     const teachersCount = await User.countDocuments({ role: 'teacher' });
     const coursesCount = await Course.countDocuments();

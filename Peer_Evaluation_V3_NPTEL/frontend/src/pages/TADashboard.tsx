@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion"; // For advanced animations
 import UncheckedEvaluations from "../components/TA/UncheckedEvaluations";
+import NotificationBell from "../components/notifications/NotificationBell";
 
 // Update TAProfile interface
 interface TAProfile {
@@ -1422,6 +1423,9 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
 
       {/* Main Content */}
       <div className="flex-1 relative overflow-y-auto p-4 flex flex-col z-10">
+        <div className="absolute top-4 right-6 z-30">
+          <NotificationBell currentPalette={currentPalette} />
+        </div>
         <div
           className="rounded-xl shadow-xl w-full h-auto mt-8 mb-8 p-6 flex items-start justify-center overflow-auto max-w-5xl mx-auto transform transition-all duration-300"
           style={{

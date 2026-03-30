@@ -15,7 +15,7 @@ const notificationSchema = new Schema<INotification>({
   recipient: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   message: { type: String, required: true },
   relatedResource: {
-    type: { type: String, enum: ['evaluation', 'flag', 'exam'] },
+    type: { type: String, enum: ['evaluation', 'flag', 'exam', 'ticket', 'enrollment', 'course', 'batch', 'system'] },
     id: { type: Schema.Types.ObjectId }
   },
   read: { type: Boolean, default: false },

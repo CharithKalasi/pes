@@ -8,6 +8,23 @@ const JWT_SECRET = process.env.JWT_SECRET || 'pes-secret';
 const OTP_STORE = new Map<string, string>();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+const createMailTransporter = () => {
+  const mailUser = process.env.MAIL_SENDER;
+  const mailPassword = process.env.MAIL_PASSWORD;
+
+  if (!mailUser || !mailPassword) {
+    throw new Error('MAIL_SENDER and MAIL_PASSWORD must be configured');
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: mailUser,
+      pass: mailPassword,
+    }
+  });
+};
+
 export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> => {
   const { email } = req.body;
   if (!email)
@@ -19,24 +36,16 @@ export const sendOtpEmail = async (req: Request, res: Response) : Promise<void> 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   OTP_STORE.set(email, otp);
 
-  // Configure transporter
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.MAIL_SENDER || "noreplypeerevaluationsystem@gmail.com",      
-      pass: process.env.MAIL_PASSWORD ||  "twmnfoksvgwfcegh"   
-    }
-  });
-
-  // Email options
-  const mailOptions = {
-    from: `"OTP Verification" <noreplypeerevaluationsystem@gmail.com>`,
-    to: email,
-    subject: 'Your OTP Code',
-    html: `<h3>Your OTP is <span style="color:blue">${otp}</span></h3>`
-  };
-
   try {
+    const transporter = createMailTransporter();
+    const mailSender = process.env.MAIL_SENDER!;
+    const mailOptions = {
+      from: `"OTP Verification" <${mailSender}>`,
+      to: email,
+      subject: 'Your OTP Code',
+      html: `<h3>Your OTP is <span style="color:blue">${otp}</span></h3>`
+    };
+
     await transporter.sendMail(mailOptions);
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
@@ -137,17 +146,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
     //const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
     const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
 
-    // Send email
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.MAIL_SENDER || "noreplypeerevaluationsystem@gmail.com",      
-          pass: process.env.MAIL_PASSWORD ||  "twmnfoksvgwfcegh"   
-        }
-      });
+    const transporter = createMailTransporter();
+    const mailSender = process.env.MAIL_SENDER!;
 
     await transporter.sendMail({
-      from: `"Password Reset" <noreplypeerevaluationsystem@gmail.com>`,
+      from: `"Password Reset" <${mailSender}>`,
       to: email,
       subject: 'Reset your password',
       html: `

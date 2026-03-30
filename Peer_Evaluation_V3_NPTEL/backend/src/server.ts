@@ -7,6 +7,7 @@ import taRoutes from "./routes/ta/ta.routes.ts";
 import teacherRoutes from "./routes/teacher/teacher.routes.ts";
 import authRoutes from './routes/authorization/auth.routes.ts';
 import adminroutes from './routes/admin/admin.routes.ts';
+import notificationRoutes from "./routes/notification/notification.routes.ts";
 // import adminstudentroutes from './routes/admin/student_admin.routes.ts';
 // import adminteachroutes from './routes/admin/teacher.routes.ts';
 import dashboardRoutes from './routes/admin/dashboard.ts';
@@ -59,6 +60,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/ta', taRoutes);
 app.use('/api/teacher', teacherRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 //app.use("/api/admin/courses", admincourseroutes);
 //app.use('/api/teacher', teacherEnrollRoutes);
 
