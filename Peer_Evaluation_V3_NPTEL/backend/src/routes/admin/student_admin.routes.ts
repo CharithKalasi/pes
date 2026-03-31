@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express from 'express';
 import catchAsync from '../../utils/catchAsync.ts';
 import { authMiddleware } from "../../middlewares/authMiddleware.ts";      
 import { authorizeRoles } from "../../middlewares/authorizeRoles.ts";     
@@ -14,7 +14,7 @@ import {
 } from '../../controllers/admin/student.controller.ts';
 
 
-const router = Router();
+const router = express.Router();
 
 router.get('/', authMiddleware,authorizeRoles("admin"), catchAsync(getAllStudents));
 router.put('/assign-course', authMiddleware, authorizeRoles('admin'), assignStudentToCourse);

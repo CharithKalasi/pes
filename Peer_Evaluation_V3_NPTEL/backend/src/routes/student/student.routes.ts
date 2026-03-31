@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from "express";
 import multer from "multer";
 import { getStudentProfile } from "../../controllers/student/student.controller.ts";
 import {
@@ -30,7 +30,7 @@ import {
 } from "../../controllers/student/enrollment.controller.ts";
 import { getAnswerKeyPdf } from "../../controllers/student/answerKeyPdf.controller.ts";
 import { getQuestionPaperPdf } from "../../controllers/student/questionPaperPdf.controller.ts";
-const router = Router();
+const router = express.Router();
 const upload = multer();
 
 router.get("/profile", authMiddleware, getStudentProfile);

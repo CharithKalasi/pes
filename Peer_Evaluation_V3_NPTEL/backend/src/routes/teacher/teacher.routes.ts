@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from "express";
 import multer from "multer";
 
 import { removeTAFromBatch } from "../../controllers/teacher/removeTAFromBatch.controller.ts";
@@ -37,7 +37,7 @@ import { handleBulkUploadScans } from "../../controllers/teacher/handleBulkUploa
 import { generateTicketsForPendingEvaluations } from "../../controllers/teacher/markUnevaluated.controller.ts";
 import { generateEvaluationStatistics } from "../../controllers/teacher/statistics.controller.ts";
 
-const router = Router();
+const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Courses

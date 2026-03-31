@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express from 'express';
 import {
   getStudentTickets,
   getSubmissionPdf,
@@ -22,7 +22,7 @@ import { authMiddleware } from '../../middlewares/authMiddleware.ts';
 import { authorizeRoles } from '../../middlewares/authorizeRoles.ts';
 import { authorizeTA } from '../../middlewares/authorizeTA.ts';
 
-const router = Router();
+const router = express.Router();
 
 // Wrap async middleware to handle errors properly
 const asyncHandler = (fn: any) => (req: any, res: any, next: any) => {

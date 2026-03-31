@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from "express";
 import { authMiddleware } from "../../middlewares/authMiddleware.ts";
 import {
   getNotifications,
@@ -7,7 +7,7 @@ import {
   markNotificationAsRead,
 } from "../../controllers/notification/notification.controller.ts";
 
-const router = Router();
+const router = express.Router();
 
 router.use(authMiddleware);
 

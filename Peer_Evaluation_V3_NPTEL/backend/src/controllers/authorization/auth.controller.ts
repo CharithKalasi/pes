@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { User } from '../../models/User.ts';
 import { Batch } from '../../models/Batch.ts';
 import bcrypt from 'bcryptjs';

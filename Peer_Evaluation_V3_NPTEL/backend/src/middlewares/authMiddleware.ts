@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+
+import type { Request, Response, NextFunction } from "express";
 import { User } from "../models/User.ts";
 
 const JWT_SECRET = process.env.JWT_SECRET || "pes-secret";
 
 // Extend req to include user
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
@@ -41,4 +42,3 @@ export const authMiddleware = async (
     res.status(401).json({ message: "Invalid token" });
   }
 };
-export default AuthenticatedRequest;
