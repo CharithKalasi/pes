@@ -13,11 +13,11 @@ import dashboardRoutes from './routes/admin/dashboard.ts';
 // ❌ TEMPORARILY DISABLED (causing crash on Linux)
 // import "./models/Course.ts";
 
-import "./models/Batch.ts";
-import "./models/Exam.ts";
-import "./models/User.ts";
-import "./models/Flag.ts"; 
-import "./models/UIDMap.ts";
+//import "./models/Batch.ts";
+//import "./models/Exam.ts";
+//import "./models/User.ts";
+//import "./models/Flag.ts"; 
+//import "./models/UIDMap.ts";
 
 import cors from 'cors';
 import dotenv from "dotenv";
