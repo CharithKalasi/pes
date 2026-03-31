@@ -4,11 +4,14 @@
   "main": "src/server.ts",
   "type": "module",
   "scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "dev": "nodemon --exec tsx src/server.ts",
-  "start": "node --loader ts-node/esm src/server.ts",
-  "seed": "node --loader ts-node/esm src/scripts/seed.ts"
-},
+    "dev": "nodemon --exec tsx src/server.ts",
+
+    "build": "echo \"no build required\"",
+
+    "start": "tsx src/server.ts",
+
+    "seed": "tsx src/scripts/seed.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -40,7 +43,8 @@
     "puppeteer": "^24.11.2",
     "qrcode": "^1.5.4",
     "sharp": "^0.34.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.3",
