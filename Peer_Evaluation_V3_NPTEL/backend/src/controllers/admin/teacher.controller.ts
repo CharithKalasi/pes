@@ -1,4 +1,4 @@
-// import { Request, Response } from 'express';
+// import type { Request, Response } from 'express';
 // import { User } from '../../models/User.ts';
 // import { Course } from '../../models/Course.ts';
 // import mongoose from 'mongoose';
