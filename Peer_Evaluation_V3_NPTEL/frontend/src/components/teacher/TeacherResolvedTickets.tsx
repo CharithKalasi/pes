@@ -1,6 +1,7 @@
 // frontend/src/components/teacher/TeacherResolvedTickets.tsx
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from '../../config/api';
 
 interface Ticket {
   _id: string;
@@ -12,16 +13,13 @@ interface Ticket {
   resolvedAt?: string;
 }
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
-const BASE_URL = `http://localhost:${PORT}`;
-
 const TeacherResolvedTickets = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchResolvedTickets = async () => {
     try {
-      const { data } = await axios.get(`${BASE_URL}/api/teacher/resolved-tickets`, {
+      const { data } = await axios.get(`${API_BASE_URL}/api/teacher/resolved-tickets`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -67,3 +65,4 @@ const TeacherResolvedTickets = () => {
 };
 
 export default TeacherResolvedTickets;
+

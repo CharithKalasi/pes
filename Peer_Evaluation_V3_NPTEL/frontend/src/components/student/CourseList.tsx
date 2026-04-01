@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 type Course = {
   _id: string;
@@ -16,7 +16,7 @@ type Props = {
 };
 
 const fetchCourses = async (): Promise<Course[]> => {
-  const { data } = await axios.get(`http://localhost:${PORT}/api/student/courses`, {
+  const { data } = await axios.get(`${API_BASE_URL}/api/student/courses`, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
   });
   return data.courses;
@@ -107,3 +107,4 @@ const CourseList = ({ onSelectCourse, onGoToEnrollment, darkMode }: Props) => {
 };
 
 export default CourseList;
+

@@ -11,8 +11,8 @@ import TeacherCourses from "../components/teacher/TeacherCourses";
 import TeacherExams from "../components/teacher/TeacherExams";
 import ChangePassword from "../components/teacher/ChangePassword";
 import NotificationBell from "../components/notifications/NotificationBell";
+import { API_BASE_URL } from '../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 // Define both light and dark mode palettes
 const lightPalette = {
@@ -83,7 +83,7 @@ const TeacherDashboard = () => {
       setDarkMode(JSON.parse(savedDarkMode));
     }
 
-    fetch(`http://localhost:${PORT}/api/dashboard/profile`, {
+    fetch(`${API_BASE_URL}/api/dashboard/profile`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then(res => res.json())
@@ -326,3 +326,5 @@ const TeacherDashboard = () => {
 };
 
 export default TeacherDashboard;
+
+

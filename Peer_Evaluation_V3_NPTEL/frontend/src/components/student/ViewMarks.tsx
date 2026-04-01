@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 interface Batch {
   _id: string;
@@ -55,10 +55,10 @@ const ViewMarks = ({ darkMode }: Props) => {
       try {
         const token = localStorage.getItem("token");
         const [coursesRes, resultsRes] = await Promise.all([
-          axios.get(`http://localhost:${PORT}/api/student/enrolled-courses-batches`, {
+          axios.get(`${API_BASE_URL}/api/student/enrolled-courses-batches`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`http://localhost:${PORT}/api/student/results`, {
+          axios.get(`${API_BASE_URL}/api/student/results`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -106,7 +106,7 @@ const ViewMarks = ({ darkMode }: Props) => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `http://localhost:${PORT}/api/student/raise-ticket`,
+        `${API_BASE_URL}/api/student/raise-ticket`,
         {
           examId,
           evaluatorId,
@@ -233,3 +233,4 @@ const ViewMarks = ({ darkMode }: Props) => {
 };
 
 export default ViewMarks;
+

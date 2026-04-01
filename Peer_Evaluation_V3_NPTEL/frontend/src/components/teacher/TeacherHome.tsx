@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { FiBook, FiEdit, FiUsers } from "react-icons/fi";
 import { useState } from "react";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const lightPalette = {
   'sidebar-bg': '#E6E6FA',
@@ -30,7 +30,7 @@ const AnimatedCount = ({ value }: { value: number }) => {
 
 const fetchDashboardStats = async () => {
   const { data } = await axios.get(
-    `http://localhost:${PORT}/api/teacher/dashboard-stats`,
+    `${API_BASE_URL}/api/teacher/dashboard-stats`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -109,3 +109,4 @@ const TeacherHome = () => {
 };
 
 export default TeacherHome;
+

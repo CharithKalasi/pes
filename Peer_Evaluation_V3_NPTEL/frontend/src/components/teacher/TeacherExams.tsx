@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FiEdit, FiPlus, FiSend } from "react-icons/fi";
 import { FaRegTrashAlt, FaRegFilePdf, FaRegClone } from "react-icons/fa";
+import { API_BASE_URL } from '../../config/api';
 
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 interface ToastProps {
   message: string;
@@ -98,7 +98,7 @@ export default function TeacherExams() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:${PORT}/api/teacher/courses`, {
+      .get(`${API_BASE_URL}/api/teacher/courses`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setCourses(res.data.courses))
@@ -108,7 +108,7 @@ export default function TeacherExams() {
   useEffect(() => {
     setAllLoading(true);
     axios
-      .get(`http://localhost:${PORT}/api/teacher/exams`, {
+      .get(`${API_BASE_URL}/api/teacher/exams`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setAllExams(res.data.exams))
@@ -120,7 +120,7 @@ export default function TeacherExams() {
     if (selectedCourse && selectedBatch) {
       setBatchLoading(true);
       axios
-        .get(`http://localhost:${PORT}/api/teacher/courses/${selectedCourse}/exams`, {
+        .get(`${API_BASE_URL}/api/teacher/courses/${selectedCourse}/exams`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => setExams(res.data.exams))
@@ -141,7 +141,7 @@ export default function TeacherExams() {
     if (selectedCourse && selectedBatch) {
       setBatchLoading(true);
       try {
-        const res = await axios.get(`http://localhost:${PORT}/api/teacher/courses/${selectedCourse}/exams`, {
+        const res = await axios.get(`${API_BASE_URL}/api/teacher/courses/${selectedCourse}/exams`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setExams(res.data.exams);
@@ -153,7 +153,7 @@ export default function TeacherExams() {
     }
     setAllLoading(true);
     try {
-      const resAll = await axios.get(`http://localhost:${PORT}/api/teacher/exams`, {
+      const resAll = await axios.get(`${API_BASE_URL}/api/teacher/exams`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAllExams(resAll.data.exams);
@@ -183,7 +183,7 @@ export default function TeacherExams() {
     e.preventDefault();
     try {
       // Always send maxMarks
-      await axios.post(`http://localhost:${PORT}/api/teacher/exams`, {
+      await axios.post(`${API_BASE_URL}/api/teacher/exams`, {
         title,
         startTime,
         endTime,
@@ -208,7 +208,7 @@ export default function TeacherExams() {
     e.preventDefault();
     if (!editExam) return;
     try {
-      await axios.put(`http://localhost:${PORT}/api/teacher/exams/${editExam._id}`, {
+      await axios.put(`${API_BASE_URL}/api/teacher/exams/${editExam._id}`, {
         title,
         startTime,
         endTime,
@@ -248,7 +248,7 @@ export default function TeacherExams() {
 
   const deleteExam = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:${PORT}/api/teacher/exams/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/teacher/exams/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await refreshExams();
@@ -268,7 +268,7 @@ export default function TeacherExams() {
   // Generate QR PDFs
   const handleGenerateQRs = async (examId: string) => {
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/teacher/exam/${examId}/generate-qrs`, {
+      const response = await fetch(`${API_BASE_URL}/api/teacher/exam/${examId}/generate-qrs`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -310,7 +310,7 @@ export default function TeacherExams() {
 
       try {
         const response = await axios.post(
-          `http://localhost:${PORT}/api/teacher/exams/${examId}/upload-scans`,
+          `${API_BASE_URL}/api/teacher/exams/${examId}/upload-scans`,
           formData,
           {
             headers: {
@@ -342,7 +342,7 @@ export default function TeacherExams() {
       formData.append("answerKeyPdf", file);
 
       try {
-        await axios.post(`http://localhost:${PORT}/api/teacher/${examId}/answer-key`, formData, {
+        await axios.post(`${API_BASE_URL}/api/teacher/${examId}/answer-key`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -371,7 +371,7 @@ export default function TeacherExams() {
       formData.append("questionPaperPdf", file);
 
       try {
-        await axios.post(`http://localhost:${PORT}/api/teacher/exams/${examId}/question-paper`, formData, {
+        await axios.post(`${API_BASE_URL}/api/teacher/exams/${examId}/question-paper`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -389,7 +389,7 @@ export default function TeacherExams() {
     try {
       // First: generate tickets for pending evaluations
       const response = await axios.post(
-        `http://localhost:${PORT}/api/teacher/exams/${examId}/generate-pending`,
+        `${API_BASE_URL}/api/teacher/exams/${examId}/generate-pending`,
         {},
         {
           headers: {
@@ -402,7 +402,7 @@ export default function TeacherExams() {
       // Second: send flagged evaluations for this exam
       try {
         const flaggedRes = await axios.post(
-          `http://localhost:${PORT}/api/teacher/exams/${examId}/send-flagged-evaluations?generateTickets=true`,
+          `${API_BASE_URL}/api/teacher/exams/${examId}/send-flagged-evaluations?generateTickets=true`,
           {},
           {
             headers: {
@@ -518,7 +518,7 @@ export default function TeacherExams() {
                   onClick={async () => {
                     try {
                       const res = await axios.post(
-                        `http://localhost:${PORT}/api/teacher/initiate-evaluation`,
+                        `${API_BASE_URL}/api/teacher/initiate-evaluation`,
                         { examId: exam._id },
                         { headers: { Authorization: `Bearer ${token}` } }
                       );
@@ -927,4 +927,5 @@ export default function TeacherExams() {
     </div>
   );
 }
+
 

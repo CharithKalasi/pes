@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { API_BASE_URL } from '../../config/api';
 
 interface DashboardOverviewProps {
   darkMode: boolean;
 }
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({ darkMode }) => {
   const token = localStorage.getItem('token');
@@ -13,7 +13,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ darkMode }) => {
   const { data: exams = [], isLoading: examsLoading } = useQuery({
     queryKey: ['upcomingExams'],
     queryFn: async () => {
-      const { data } = await axios.get(`http://localhost:${PORT}/api/student/exams`, {
+      const { data } = await axios.get(`${API_BASE_URL}/api/student/exams`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return data?.exams || [];
@@ -23,7 +23,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ darkMode }) => {
   const { data: evaluations = [], isLoading: evalsLoading } = useQuery({
     queryKey: ['pendingEvaluations'],
     queryFn: async () => {
-      const { data } = await axios.get(`http://localhost:${PORT}/api/student/pending-evaluations`, {
+      const { data } = await axios.get(`${API_BASE_URL}/api/student/pending-evaluations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return data?.evaluations || data?.evaluatees || [];
@@ -33,7 +33,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ darkMode }) => {
   const { data: results = [], isLoading: resultsLoading } = useQuery({
     queryKey: ['evaluationResults'],
     queryFn: async () => {
-      const { data } = await axios.get(`http://localhost:${PORT}/api/student/results`, {
+      const { data } = await axios.get(`${API_BASE_URL}/api/student/results`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return data?.results || [];
@@ -120,3 +120,4 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ darkMode }) => {
 };
 
 export default DashboardOverview;
+

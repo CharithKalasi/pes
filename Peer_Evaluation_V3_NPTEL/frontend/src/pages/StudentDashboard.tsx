@@ -14,8 +14,8 @@ import DashboardOverview from "../components/student/DashboardOverview";
 import PeerEvaluationsPending from "../components/student/PeerEvaluationsPending";
 import EnrollmentSection from "../components/student/EnrollmentSection";
 import NotificationBell from "../components/notifications/NotificationBell";
+import { API_BASE_URL } from '../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const lightPalette = {
     'bg-primary': '#FFFBF6', 'bg-secondary': '#FFFAF2',
@@ -61,7 +61,7 @@ const StudentDashboard = () => {
     useEffect(() => {
         if (!token) navigate('/');
         else {
-            axios.get(`http://localhost:${PORT}/api/student/profile`, {
+            axios.get(`${API_BASE_URL}/api/student/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
             }).then(res => setProfileData(res.data)).catch(console.error);
         }
@@ -223,3 +223,5 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+
+

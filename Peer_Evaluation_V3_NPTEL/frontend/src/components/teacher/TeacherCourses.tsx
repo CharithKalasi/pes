@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FiDownload, FiUserPlus } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 interface Batch {
   _id: string;
@@ -42,7 +42,7 @@ const TeacherCourses = () => {
     const fetchCourses = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:${PORT}/api/teacher/courses`, {
+        const res = await axios.get(`${API_BASE_URL}/api/teacher/courses`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCourses(res.data?.courses || []);
@@ -57,7 +57,7 @@ const TeacherCourses = () => {
   const handleDownloadCSV = async (course: Course, batch: Batch) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/teacher/batch/${batch._id}/students`, {
+      const response = await fetch(`${API_BASE_URL}/api/teacher/batch/${batch._id}/students`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -139,7 +139,7 @@ const TeacherCourses = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:${PORT}/api/teacher/enroll`, {
+      const response = await fetch(`${API_BASE_URL}/api/teacher/enroll`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -295,3 +295,4 @@ const TeacherCourses = () => {
 };
 
 export default TeacherCourses;
+

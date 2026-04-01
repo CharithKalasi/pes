@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"; // For advanced animations
 import UncheckedEvaluations from "../components/TA/UncheckedEvaluations";
 import NotificationBell from "../components/notifications/NotificationBell";
+import { API_BASE_URL } from '../config/api';
 
 // Update TAProfile interface
 interface TAProfile {
@@ -84,7 +85,6 @@ interface StudentTicket {
   createdAt: string;
 }
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 // Custom "Pinkish, Lilac, Purple & Yellow" Palette - Revised Mix (Light Mode)
 const lightPalette = {
@@ -213,7 +213,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:${PORT}/api/ta/student-tickets`,
+        `${API_BASE_URL}/api/ta/student-tickets`,
         {
           method: "GET",
           headers: {
@@ -240,7 +240,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
   // Add new function to fetch TA profile
   const fetchTAProfile = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/ta/profile`, {
+      const response = await fetch(`${API_BASE_URL}/api/ta/profile`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -264,7 +264,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
   const fetchPendingEnrollments = useCallback(async () => {
     try {
       const response = await fetch(
-        `http://localhost:${PORT}/api/ta/pending-enrollments`,
+        `${API_BASE_URL}/api/ta/pending-enrollments`,
         {
           method: "GET",
           headers: {
@@ -303,7 +303,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
     try {
       // Use the ticket ID directly instead of finding evaluation first
       const response = await fetch(
-        `http://localhost:${PORT}/api/ta/submission/${ticket._id}`,
+        `${API_BASE_URL}/api/ta/submission/${ticket._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -335,7 +335,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
   const handleDownloadAnswerKey = useCallback(async (ticket: StudentTicket) => {
     try {
       const response = await fetch(
-        `http://localhost:${PORT}/api/ta/answer-key/${ticket._id}`,
+        `${API_BASE_URL}/api/ta/answer-key/${ticket._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -416,7 +416,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
       }
 
       const response = await fetch(
-        `http://localhost:${PORT}/api/ta/resolve-ticket/${updateMarksDialog.id}`,
+        `${API_BASE_URL}/api/ta/resolve-ticket/${updateMarksDialog.id}`,
         {
           method: "POST",
           headers: {
@@ -465,7 +465,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
       setLoading(true);
 
       const response = await fetch(
-        `http://localhost:${PORT}/api/ta/escalate-ticket/${commentDialog.id}`,
+        `${API_BASE_URL}/api/ta/escalate-ticket/${commentDialog.id}`,
         {
           method: "POST",
           headers: {
@@ -504,7 +504,7 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
       setError(null);
 
       const response = await fetch(
-        `http://localhost:${PORT}/api/ta/enrollment/${enrollmentId}/decision`,
+        `${API_BASE_URL}/api/ta/enrollment/${enrollmentId}/decision`,
         {
           method: "POST",
           headers: {
@@ -1640,3 +1640,5 @@ const TADashboard = ({ onLogout }: { onLogout?: () => void }) => {
 };
 
 export default TADashboard;
+
+

@@ -3,8 +3,8 @@ import axios from "axios";
 import { FaRegSmileBeam, FaRegPaperPlane } from "react-icons/fa";
 import { BsStars } from "react-icons/bs";
 import { PiExam } from "react-icons/pi";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 type Props = {
   darkMode: boolean;
@@ -51,7 +51,7 @@ const PeerEvaluationsPending = ({ darkMode }: Props) => {
       setError(null);
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:${PORT}/api/student/pending-evaluations`, {
+        const res = await axios.get(`${API_BASE_URL}/api/student/pending-evaluations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPending(res.data.evaluations || []);
@@ -77,7 +77,7 @@ const PeerEvaluationsPending = ({ darkMode }: Props) => {
 
     if (ev.submissionId) {
       try {
-        const res = await fetch(`http://localhost:${PORT}/api/student/submission-pdf/${ev.submissionId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/student/submission-pdf/${ev.submissionId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -145,7 +145,7 @@ const PeerEvaluationsPending = ({ darkMode }: Props) => {
     setSubmitStatus("submitting");
     try {
       const token = localStorage.getItem("token");
-      await axios.post(`http://localhost:${PORT}/api/student/submit-peer-evaluation`, {
+      await axios.post(`${API_BASE_URL}/api/student/submit-peer-evaluation`, {
         evaluationId: openEval._id,
         marks: marks.map(m => m === "" ? 0 : m),
         feedback,
@@ -281,3 +281,4 @@ const PeerEvaluationsPending = ({ darkMode }: Props) => {
 };
 
 export default PeerEvaluationsPending;
+

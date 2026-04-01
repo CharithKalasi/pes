@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiMoon, FiSun } from 'react-icons/fi';
 import NotificationBell from '../components/notifications/NotificationBell';
+import { API_BASE_URL } from '../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 type Tab = 'home' | 'course' | 'batch'| 'role' ;
 type Course = {
@@ -355,36 +355,36 @@ const AdminDashboard = () => {
         navigate('/'); // Redirect to login
         return;
     }
-    fetchData(`http://localhost:${PORT}/api/dashboard/profile`, setProfileData, 'Failed to fetch profile');
-    fetchData(`http://localhost:${PORT}/api/dashboard/counts`, setCounts, 'Failed to fetch counts');
-    fetchData(`http://localhost:${PORT}/api/admin/users`, setAllUsers, 'Failed to fetch users');
+    fetchData(`${API_BASE_URL}/api/dashboard/profile`, setProfileData, 'Failed to fetch profile');
+    fetchData(`${API_BASE_URL}/api/dashboard/counts`, setCounts, 'Failed to fetch counts');
+    fetchData(`${API_BASE_URL}/api/admin/users`, setAllUsers, 'Failed to fetch users');
   }, [token, navigate]);
   
   // Fetch data based on active tab
   useEffect(() => {
     if (activeTab === 'course') {
-        fetchData(`http://localhost:${PORT}/api/admin/courses`, setCourses, 'Error fetching courses');
+        fetchData(`${API_BASE_URL}/api/admin/courses`, setCourses, 'Error fetching courses');
     }
     if (activeTab === 'batch') {
-        fetchData(`http://localhost:${PORT}/api/admin/batches`, setBatches, 'Error fetching batches');
-        fetchData(`http://localhost:${PORT}/api/admin/courses`, setCourses, 'Error fetching courses for batches');
-        fetchData(`http://localhost:${PORT}/api/admin/users`, setAllUsers, 'Failed to fetch instructors for batches');
+        fetchData(`${API_BASE_URL}/api/admin/batches`, setBatches, 'Error fetching batches');
+        fetchData(`${API_BASE_URL}/api/admin/courses`, setCourses, 'Error fetching courses for batches');
+        fetchData(`${API_BASE_URL}/api/admin/users`, setAllUsers, 'Failed to fetch instructors for batches');
     }
     if(activeTab === 'role') {
-        fetchData(`http://localhost:${PORT}/api/admin/users`, setAllUsers, 'Failed to fetch users');
+        fetchData(`${API_BASE_URL}/api/admin/users`, setAllUsers, 'Failed to fetch users');
     }
   }, [activeTab]);
 
   const handleAddCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:${PORT}/api/admin/courses`, { name: courseName, code: courseCode, startDate, endDate }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API_BASE_URL}/api/admin/courses`, { name: courseName, code: courseCode, startDate, endDate }, { headers: { Authorization: `Bearer ${token}` } });
       showToast('Course added successfully');
       setCourseName('');
       setCourseCode('');
       setStartDate('');
       setEndDate('');
-      fetchData(`http://localhost:${PORT}/api/admin/courses`, setCourses, 'Error refetching courses');
+      fetchData(`${API_BASE_URL}/api/admin/courses`, setCourses, 'Error refetching courses');
     } catch (error) {
       console.error(error);
       showToast('Failed to add course', 'error');
@@ -397,10 +397,10 @@ const AdminDashboard = () => {
         return;
     }
     try {
-      await axios.delete(`http://localhost:${PORT}/api/admin/${courseIdToDelete}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_BASE_URL}/api/admin/${courseIdToDelete}`, { headers: { Authorization: `Bearer ${token}` } });
       showToast('Course deleted');
       setCourseIdToDelete('');
-      fetchData(`http://localhost:${PORT}/api/admin/courses`, setCourses, 'Error refetching courses');
+      fetchData(`${API_BASE_URL}/api/admin/courses`, setCourses, 'Error refetching courses');
     } catch (error) {
       console.error(error);
       showToast('Failed to delete course', 'error');
@@ -409,7 +409,7 @@ const AdminDashboard = () => {
 
   const handleAddBatch = async () => {
     try {
-      const courseRes = await axios.get(`http://localhost:${PORT}/api/admin/courses`, {
+      const courseRes = await axios.get(`${API_BASE_URL}/api/admin/courses`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const course = courseRes.data.find((c: any) => c.code === batchCourseCode);
@@ -430,7 +430,7 @@ const AdminDashboard = () => {
         students: []
       });
       await axios.post(
-        `http://localhost:${PORT}/api/admin/create-batch-with-names`,
+        `${API_BASE_URL}/api/admin/create-batch-with-names`,
         { batchName: batchName, courseId: course._id, instructorId: batchInstructor, students: [] },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -439,8 +439,8 @@ const AdminDashboard = () => {
       setBatchName('');
       setBatchCourseCode('');
       setBatchInstructor(''); 
-      fetchData(`http://localhost:${PORT}/api/admin/batches`, setBatches, 'Error fetching batches');
-      fetchData(`http://localhost:${PORT}/api/admin/courses`, setCourses, 'Error fetching courses for batches');
+      fetchData(`${API_BASE_URL}/api/admin/batches`, setBatches, 'Error fetching batches');
+      fetchData(`${API_BASE_URL}/api/admin/courses`, setCourses, 'Error fetching courses for batches');
     } catch (err) {
       console.error(err);
       showToast('Failed to add batch', 'error');
@@ -449,14 +449,14 @@ const AdminDashboard = () => {
 
   const handleDeleteBatch = async () => {
     try {
-      await axios.delete(`http://localhost:${PORT}/api/admin/batches/${batchToDelete}`, {
+      await axios.delete(`${API_BASE_URL}/api/admin/batches/${batchToDelete}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       showToast('Batch deleted successfully');
       setBatchToDelete('');
-      fetchData(`http://localhost:${PORT}/api/admin/batches`, setBatches, 'Error fetching batches');
-      fetchData(`http://localhost:${PORT}/api/admin/courses`, setCourses, 'Error fetching courses for batches');
+      fetchData(`${API_BASE_URL}/api/admin/batches`, setBatches, 'Error fetching batches');
+      fetchData(`${API_BASE_URL}/api/admin/courses`, setCourses, 'Error fetching courses for batches');
     } catch (err) {
       console.error(err);
       showToast('Failed to delete batch', 'error');
@@ -470,9 +470,9 @@ const AdminDashboard = () => {
       return;
     }
     try {
-        await axios.post(`http://localhost:${PORT}/api/admin/update-role`, { email: roleEmail, role: roleType }, { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } });
+        await axios.post(`${API_BASE_URL}/api/admin/update-role`, { email: roleEmail, role: roleType }, { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } });
         showToast('Role updated successfully');
-        fetchData(`http://localhost:${PORT}/api/admin/users`, setAllUsers, 'Failed to refetch users');
+        fetchData(`${API_BASE_URL}/api/admin/users`, setAllUsers, 'Failed to refetch users');
         setRoleEmail('');
         setRoleType('');
     } catch(error) {
@@ -1126,3 +1126,5 @@ const AdminDashboard = () => {
 
 // A placeholder for a simple Login component if the user navigates to '/'
 export default AdminDashboard;
+
+

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiBell, FiCheck, FiCheckCircle } from "react-icons/fi";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 type NotificationItem = {
   _id: string;
@@ -66,7 +66,7 @@ export default function NotificationBell({ currentPalette }: Props) {
   const fetchUnreadCount = async () => {
     if (!token) return;
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/notifications/unread-count`, {
+      const response = await fetch(`${API_BASE_URL}/api/notifications/unread-count`, {
         headers,
       });
       if (!response.ok) return;
@@ -82,7 +82,7 @@ export default function NotificationBell({ currentPalette }: Props) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`http://localhost:${PORT}/api/notifications?limit=10`, {
+      const response = await fetch(`${API_BASE_URL}/api/notifications?limit=10`, {
         headers,
       });
       if (!response.ok) {
@@ -101,7 +101,7 @@ export default function NotificationBell({ currentPalette }: Props) {
   const markAsRead = async (notificationId: string) => {
     if (!token) return;
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/notifications/${notificationId}/read`, {
+      const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
         method: "PATCH",
         headers,
       });
@@ -125,7 +125,7 @@ export default function NotificationBell({ currentPalette }: Props) {
   const markAllAsRead = async () => {
     if (!token) return;
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/notifications/read-all`, {
+      const response = await fetch(`${API_BASE_URL}/api/notifications/read-all`, {
         method: "PATCH",
         headers,
       });
@@ -277,3 +277,4 @@ export default function NotificationBell({ currentPalette }: Props) {
     </div>
   );
 }
+

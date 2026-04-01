@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 interface StudentProfile {
   name: string;
@@ -40,7 +40,7 @@ const ProfileSection = ({ darkMode, onNavigate }: Props) => {
 
       try {
         const res = await axios.get(
-          `http://localhost:${PORT}/api/student/profile`,
+          `${API_BASE_URL}/api/student/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -69,7 +69,7 @@ const ProfileSection = ({ darkMode, onNavigate }: Props) => {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        `http://localhost:${PORT}/api/student/change-password`,
+        `${API_BASE_URL}/api/student/change-password`,
         { currentPassword, newPassword },
         {
           headers: { Authorization: `Bearer ${token}` },

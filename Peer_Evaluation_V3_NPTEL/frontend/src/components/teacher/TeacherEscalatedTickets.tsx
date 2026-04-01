@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from '../../config/api';
 
 interface Ticket {
   _id: string;
@@ -10,9 +11,6 @@ interface Ticket {
   resolved: boolean;
 }
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
-const BASE_URL = `http://localhost:${PORT}`;
-
 const TeacherEscalatedTickets = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [remarks, setRemarks] = useState<Record<string, string>>({});
@@ -22,7 +20,7 @@ const TeacherEscalatedTickets = () => {
 
   const fetchTickets = async () => {
     try {
-      const { data } = await axios.get(`${BASE_URL}/api/teacher/escalated-tickets`, {
+      const { data } = await axios.get(`${API_BASE_URL}/api/teacher/escalated-tickets`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -53,7 +51,7 @@ const TeacherEscalatedTickets = () => {
     try {
       setResolvingId(ticketId);
       await axios.put(
-        `${BASE_URL}/api/teacher/resolve-ticket/${ticketId}`,
+        `${API_BASE_URL}/api/teacher/resolve-ticket/${ticketId}`,
         {
           remark,
           marksUpdated: marksUpdated?.trim() === "" ? null : Number(marksUpdated),
@@ -139,3 +137,4 @@ const TeacherEscalatedTickets = () => {
 };
 
 export default TeacherEscalatedTickets;
+

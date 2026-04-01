@@ -3,8 +3,8 @@ import { useEffect, useState, type SetStateAction } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiMoon, FiSun } from 'react-icons/fi';
 import axios, { AxiosError } from 'axios';
+import { API_BASE_URL } from '../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 // DialogBox component
 type DialogBoxProps = {
@@ -105,7 +105,7 @@ export default function Register() {
       setIsSubmitting(true);
       showMessage('Sending OTP...');
       const normalizedEmail = email.trim().toLowerCase();
-      await axios.post(`http://localhost:${PORT}/api/auth/send`, { email: normalizedEmail });
+      await axios.post(`${API_BASE_URL}/api/auth/send`, { email: normalizedEmail });
       navigate('/otp', { state: { email: normalizedEmail, password, role, name } });
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
@@ -236,3 +236,5 @@ export default function Register() {
     </div>
   );
 }
+
+

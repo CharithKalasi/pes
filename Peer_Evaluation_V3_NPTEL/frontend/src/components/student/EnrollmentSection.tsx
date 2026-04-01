@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 interface Course {
     _id: string;
@@ -40,7 +40,7 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
         const fetchCourses = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const res = await axios.get(`http://localhost:${PORT}/api/student/all-courses`, {
+                const res = await axios.get(`${API_BASE_URL}/api/student/all-courses`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setCourses(res.data.courses || []);
@@ -61,7 +61,7 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
             try {
                 const token = localStorage.getItem("token");
                 const res = await axios.get(
-                    `http://localhost:${PORT}/api/student/batches-by-course?courseId=${selectedCourse}`,
+                    `${API_BASE_URL}/api/student/batches-by-course?courseId=${selectedCourse}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 setBatches(res.data.batches || []);
@@ -77,7 +77,7 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
         setError(null);
         try {
             const token = localStorage.getItem("token");
-            const res = await axios.get(`http://localhost:${PORT}/api/student/enrollment`, {
+            const res = await axios.get(`${API_BASE_URL}/api/student/enrollment`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setEnrollments(res.data || []);
@@ -99,7 +99,7 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
         try {
             const token = localStorage.getItem("token");
             await axios.post(
-                `http://localhost:${PORT}/api/student/enrollment`,
+                `${API_BASE_URL}/api/student/enrollment`,
                 { courseId: selectedCourse, batchId: selectedBatch, notes },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -143,7 +143,7 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
 
         try {
             await axios.put(
-                `http://localhost:${PORT}/api/student/enrollment/${enrollmentId}`,
+                `${API_BASE_URL}/api/student/enrollment/${enrollmentId}`,
                 { notes: nextNotes },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -169,7 +169,7 @@ const EnrollmentSection = ({ darkMode }: { darkMode: boolean }) => {
 
         try {
             await axios.delete(
-                `http://localhost:${PORT}/api/student/enrollment/${enrollmentId}`,
+                `${API_BASE_URL}/api/student/enrollment/${enrollmentId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             if (editingEnrollmentId === enrollmentId) {

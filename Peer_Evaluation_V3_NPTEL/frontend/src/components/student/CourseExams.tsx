@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useState, useRef, useEffect } from 'react';
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 type Exam = {
   _id: string;
@@ -22,7 +22,7 @@ type Props = {
 
 const fetchExams = async (courseId: string): Promise<Exam[]> => {
   const { data } = await axios.get(
-    `http://localhost:${PORT}/api/student/courses/${courseId}/exams`,
+    `${API_BASE_URL}/api/student/courses/${courseId}/exams`,
     {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
     }
@@ -110,7 +110,7 @@ const CourseExams = ({ courseId, onBack, darkMode }: Props) => {
       formData.append('pdf', selectedFile);
       formData.append('examId', examId);
       await axios.post(
-        `http://localhost:${PORT}/api/student/submit-answer`,
+        `${API_BASE_URL}/api/student/submit-answer`,
         formData,
         {
           headers: {
@@ -137,7 +137,7 @@ const CourseExams = ({ courseId, onBack, darkMode }: Props) => {
     const collapseBtn = document.querySelector('button:has(svg.text-2xl)') as HTMLButtonElement;
     if (collapseBtn) collapseBtn.click();
     try {
-      const res = await axios.get(`http://localhost:${PORT}/api/student/question-paper/${exam._id}`, {
+      const res = await axios.get(`${API_BASE_URL}/api/student/question-paper/${exam._id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         responseType: 'blob',
       });
@@ -290,3 +290,4 @@ const CourseExams = ({ courseId, onBack, darkMode }: Props) => {
 };
 
 export default CourseExams;
+

@@ -2,8 +2,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { FiArrowLeft, FiMail, FiMoon, FiRefreshCw, FiShield, FiSun } from "react-icons/fi";
 import axios, { AxiosError } from "axios";
+import { API_BASE_URL } from '../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const palette = {
   accentPurple: "#7c3aed",
@@ -115,12 +115,12 @@ export default function OtpScreen() {
     try {
       setIsVerifying(true);
 
-      await axios.post(`http://localhost:${PORT}/api/auth/verify`, {
+      await axios.post(`${API_BASE_URL}/api/auth/verify`, {
         email: normalizedEmail,
         otp: otp.trim(),
       });
 
-      const response = await axios.post(`http://localhost:${PORT}/api/auth/register`, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, {
         name,
         email: normalizedEmail,
         password,
@@ -156,7 +156,7 @@ export default function OtpScreen() {
   const handleResend = async () => {
     try {
       setIsResending(true);
-      await axios.post(`http://localhost:${PORT}/api/auth/send`, { email: normalizedEmail });
+      await axios.post(`${API_BASE_URL}/api/auth/send`, { email: normalizedEmail });
       setCountdown(30);
       showMessage("A fresh OTP has been sent to your email.");
     } catch (err) {
@@ -311,3 +311,5 @@ export default function OtpScreen() {
     </div>
   );
 }
+
+

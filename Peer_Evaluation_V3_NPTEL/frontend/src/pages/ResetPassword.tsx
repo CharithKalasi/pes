@@ -3,8 +3,8 @@ import { useState, useEffect,type SetStateAction } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { FiMoon, FiSun } from 'react-icons/fi';
+import { API_BASE_URL } from '../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ export default function ResetPassword() {
 
     try {
       setIsSubmitting(true);
-      await axios.post(`http://localhost:${PORT}/api/auth/reset-password`, {
+      await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
         token,
         newPassword: password,
       });
@@ -185,3 +185,5 @@ export default function ResetPassword() {
     </div>
   );
 }
+
+

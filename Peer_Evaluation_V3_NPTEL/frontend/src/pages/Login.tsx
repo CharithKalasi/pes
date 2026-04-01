@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiMoon, FiSun } from 'react-icons/fi';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const currentPalette = {
   'accent-purple': '#7c3aed',
@@ -35,7 +35,7 @@ export default function Login() {
 
     try {
       const res = await axios.post(
-        `http://localhost:${PORT}/api/auth/login`,
+        `${API_BASE_URL}/api/auth/login`,
         { email, password },
         { withCredentials: true }
       );
@@ -190,3 +190,5 @@ export default function Login() {
     </div>
   );
 }
+
+

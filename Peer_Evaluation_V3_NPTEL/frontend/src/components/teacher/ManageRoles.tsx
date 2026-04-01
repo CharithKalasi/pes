@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { FiUserCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const palette = {
   'bg-secondary': '#FFFAF2',
@@ -26,7 +26,7 @@ const ManageRoles = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:${PORT}/api/teacher/courses`, {
+      .get(`${API_BASE_URL}/api/teacher/courses`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
@@ -38,13 +38,13 @@ const ManageRoles = () => {
     if (!selectedBatch) return;
 
     axios
-      .get(`http://localhost:${PORT}/api/teacher/ta-candidates/${selectedCourse}`, {
+      .get(`${API_BASE_URL}/api/teacher/ta-candidates/${selectedCourse}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setStudents(res.data.students));
 
     axios
-      .get(`http://localhost:${PORT}/api/teacher/batch/${selectedBatch}/ta`, {
+      .get(`${API_BASE_URL}/api/teacher/batch/${selectedBatch}/ta`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setTAs(res.data.ta || []))
@@ -54,7 +54,7 @@ const ManageRoles = () => {
   const handleAssignTA = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:${PORT}/api/teacher/batch/${selectedBatch}/assign-ta`,
+        `${API_BASE_URL}/api/teacher/batch/${selectedBatch}/assign-ta`,
         { studentId: selectedStudent },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -63,7 +63,7 @@ const ManageRoles = () => {
       setMessage(res.data.message || "TA assigned successfully!");
 
       const taRes = await axios.get(
-        `http://localhost:${PORT}/api/teacher/batch/${selectedBatch}/ta`,
+        `${API_BASE_URL}/api/teacher/batch/${selectedBatch}/ta`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -83,7 +83,7 @@ const ManageRoles = () => {
 
     try {
       const res = await axios.delete(
-        `http://localhost:${PORT}/api/teacher/batch/${selectedBatch}/remove-ta/${taId}`,
+        `${API_BASE_URL}/api/teacher/batch/${selectedBatch}/remove-ta/${taId}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -91,7 +91,7 @@ const ManageRoles = () => {
       setMessage(res.data.message || "TA removed successfully");
 
       const taRes = await axios.get(
-        `http://localhost:${PORT}/api/teacher/batch/${selectedBatch}/ta`,
+        `${API_BASE_URL}/api/teacher/batch/${selectedBatch}/ta`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }

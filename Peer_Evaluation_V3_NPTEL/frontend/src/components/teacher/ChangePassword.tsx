@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from '../../config/api';
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 export default function ChangePassword({ onClose }: { onClose: () => void }) {
     const token = localStorage.getItem("token");
@@ -25,7 +25,7 @@ export default function ChangePassword({ onClose }: { onClose: () => void }) {
         try {
             setLoading(true);
             const res = await axios.post(
-                `http://localhost:${PORT}/api/student/change-password`,
+                `${API_BASE_URL}/api/student/change-password`,
                 {
                     currentPassword,
                     newPassword,
@@ -97,3 +97,4 @@ export default function ChangePassword({ onClose }: { onClose: () => void }) {
         </div>
     );
 }
+

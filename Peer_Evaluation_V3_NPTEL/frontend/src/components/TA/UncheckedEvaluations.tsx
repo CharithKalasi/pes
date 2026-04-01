@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { FiDownload, FiEdit, FiSave, FiX, FiFileText } from 'react-icons/fi';
+import { API_BASE_URL } from '../../config/api';
 
 interface UncheckedTicket {
   _id: string; // This is the ticket ID
@@ -37,7 +38,6 @@ interface UncheckedEvaluationsProps {
   getCardStyles: () => React.CSSProperties;
 }
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 5000;
 
 const UncheckedEvaluations: React.FC<UncheckedEvaluationsProps> = React.memo(({
   currentPalette,
@@ -76,7 +76,7 @@ const UncheckedEvaluations: React.FC<UncheckedEvaluationsProps> = React.memo(({
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`http://localhost:${PORT}/api/ta/unchecked-evaluations`, {
+      const response = await fetch(`${API_BASE_URL}/api/ta/unchecked-evaluations`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ const UncheckedEvaluations: React.FC<UncheckedEvaluationsProps> = React.memo(({
 
   const handleDownloadSubmission = useCallback(async (ticket: UncheckedTicket) => {
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/ta/unchecked-submission/${ticket._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/ta/unchecked-submission/${ticket._id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -134,7 +134,7 @@ const UncheckedEvaluations: React.FC<UncheckedEvaluationsProps> = React.memo(({
 
   const handleDownloadAnswerKey = useCallback(async (ticket: UncheckedTicket) => {
     try {
-      const response = await fetch(`http://localhost:${PORT}/api/ta/unchecked-answer-key/${ticket._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/ta/unchecked-answer-key/${ticket._id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -219,7 +219,7 @@ const UncheckedEvaluations: React.FC<UncheckedEvaluationsProps> = React.memo(({
         return;
       }
 
-      const response = await fetch(`http://localhost:${PORT}/api/ta/complete-evaluation/${editingTicket.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/ta/complete-evaluation/${editingTicket.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
