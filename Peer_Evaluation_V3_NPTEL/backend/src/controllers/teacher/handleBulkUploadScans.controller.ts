@@ -13,11 +13,36 @@ import { runWithConcurrency } from "../../utils/runWithConcurrency.ts";
 
 const require = createRequire(import.meta.url);
 const jsQR = require("jsqr");
-const poppler = require("pdf-poppler");
+
+type PopplerModule = {
+  convert: (pdfPath: string, options: {
+    format: "png";
+    out_dir: string;
+    out_prefix: string;
+    page: number;
+    scale: number;
+  }) => Promise<unknown>;
+};
 
 interface QRPayload {
   uid: string;
 }
+
+let popplerModule: PopplerModule | null = null;
+
+const getPoppler = (): PopplerModule => {
+  if (process.platform === "linux") {
+    throw new Error(
+      "Bulk scan upload is not available on Linux because it depends on pdf-poppler. Deploy this route with a Linux-compatible PDF converter before using it on Render."
+    );
+  }
+
+  if (!popplerModule) {
+    popplerModule = require("pdf-poppler") as PopplerModule;
+  }
+
+  return popplerModule;
+};
 
 const convertPdfToImage = async (pdfBuffer: Buffer): Promise<string> => {
   const srcDoc = await PDFDocument.load(pdfBuffer);
@@ -41,6 +66,7 @@ const convertPdfToImage = async (pdfBuffer: Buffer): Promise<string> => {
     scale: 500
   };
 
+  const poppler = getPoppler();
   await poppler.convert(tempPdfPath, options);
 
   if (!fs.existsSync(expectedImagePath)) {
