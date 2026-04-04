@@ -8,6 +8,8 @@ import nodemailer from 'nodemailer';
 const JWT_SECRET = process.env.JWT_SECRET || 'pes-secret';
 const OTP_STORE = new Map<string, string>();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM = process.env.RESEND_FROM;
 
 const createMailTransporter = () => {
   const mailUser = process.env.MAIL_SENDER;
@@ -23,6 +25,51 @@ const createMailTransporter = () => {
       user: mailUser,
       pass: mailPassword,
     }
+  });
+};
+
+const sendWithResend = async (to: string, subject: string, html: string) => {
+  if (!RESEND_API_KEY || !RESEND_FROM) {
+    throw new Error('RESEND_API_KEY and RESEND_FROM must be configured');
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: RESEND_FROM,
+      to,
+      subject,
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.text();
+    throw new Error(`Resend failed: ${response.status} ${payload}`);
+  }
+};
+
+const sendOtpMessage = async (to: string, otp: string) => {
+  const subject = 'Your OTP Code';
+  const html = `<h3>Your OTP is <span style="color:blue">${otp}</span></h3>`;
+
+  if (RESEND_API_KEY) {
+    await sendWithResend(to, subject, html);
+    return;
+  }
+
+  const transporter = createMailTransporter();
+  const mailSender = process.env.MAIL_SENDER!;
+
+  await transporter.sendMail({
+    from: `"OTP Verification" <${mailSender}>`,
+    to,
+    subject,
+    html,
   });
 };
 
@@ -49,15 +96,7 @@ export const sendOtpEmail = async (req: Request, res: Response): Promise<void> =
   }
 
   try {
-    const transporter = createMailTransporter();
-    const mailSender = process.env.MAIL_SENDER!;
-
-    await transporter.sendMail({
-      from: `"OTP Verification" <${mailSender}>`,
-      to: normalizedEmail,
-      subject: 'Your OTP Code',
-      html: `<h3>Your OTP is <span style="color:blue">${otp}</span></h3>`
-    });
+    await sendOtpMessage(normalizedEmail, otp);
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
