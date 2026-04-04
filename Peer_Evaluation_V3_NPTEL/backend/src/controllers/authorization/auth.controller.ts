@@ -43,6 +43,11 @@ export const sendOtpEmail = async (req: Request, res: Response): Promise<void> =
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   OTP_STORE.set(normalizedEmail, otp);
 
+  if (process.env.OTP_EMAIL_DISABLED === "true") {
+    res.status(200).json({ message: "OTP generated (email disabled)", otp });
+    return;
+  }
+
   try {
     const transporter = createMailTransporter();
     const mailSender = process.env.MAIL_SENDER!;
@@ -57,6 +62,10 @@ export const sendOtpEmail = async (req: Request, res: Response): Promise<void> =
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
     console.error(error);
+    if (process.env.OTP_EMAIL_FALLBACK === "true") {
+      res.status(200).json({ message: "OTP generated (email failed)", otp });
+      return;
+    }
     res.status(500).json({ message: 'Failed to send OTP' });
   }
 };
